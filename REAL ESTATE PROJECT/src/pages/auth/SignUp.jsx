@@ -10,8 +10,8 @@ import {
 export default function SignUp() {
   const navigate = useNavigate();
 
-  // Selection step: null means role selection screen, 'user' | 'owner' means active form
-  const [selectedRole, setSelectedRole] = useState(null);
+  // Selection step: bypassed to always register as user
+  const selectedRole = 'user';
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [tempPassword, setTempPassword] = useState("");
@@ -177,17 +177,13 @@ export default function SignUp() {
           <div className="space-y-6">
             
             {/* Form header details */}
-            <div className="flex justify-between items-center pb-4 border-b border-slate-100">
-              <button 
-                onClick={() => setSelectedRole(null)}
-                className="flex items-center gap-1 text-xs font-bold text-slate-400 hover:text-slate-800 transition"
-              >
-                <ChevronLeft className="h-4 w-4" /> Account Type
-              </button>
-              <div className="text-right">
-                <span className="text-[10px] font-extrabold uppercase tracking-widest text-slate-400">Signing Up as</span>
-                <p className="text-xs font-bold text-slate-800 capitalize">{selectedRole === 'user' ? 'Seeker 👤' : 'Owner/Broker 🏠'}</p>
-              </div>
+            <div className="text-center space-y-2 pb-4 border-b border-slate-100">
+              <h2 className="font-display font-extrabold text-2xl text-slate-800 tracking-tight">
+                Create Your Account
+              </h2>
+              <p className="text-xs text-slate-400 font-semibold leading-relaxed">
+                Join Nestly to find and list properties.
+              </p>
             </div>
 
             {errorMsg && (

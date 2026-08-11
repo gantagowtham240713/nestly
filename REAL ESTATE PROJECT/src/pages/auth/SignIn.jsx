@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useAppStore } from '../../store/useAppStore';
 import { authService } from '../../services/supabaseAuth';
 import { 
@@ -9,6 +9,7 @@ import {
 
 export default function SignIn() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { setRole } = useAppStore();
 
   const [email, setEmail] = useState("");
@@ -75,8 +76,13 @@ export default function SignIn() {
       }
 
       // Role redirection router
+      const searchParams = new URLSearchParams(location.search);
+      const redirectTo = searchParams.get('redirect');
+
       setTimeout(() => {
-        if (profile.role === 'admin') {
+        if (redirectTo) {
+          navigate(redirectTo);
+        } else if (profile.role === 'admin') {
           navigate('/admin/dashboard');
         } else if (profile.role === 'owner') {
           navigate('/owner/dashboard');

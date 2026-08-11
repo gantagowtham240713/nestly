@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store/useAppStore';
 import { 
   Sparkles, Bell, MessageSquare, Heart, ArrowLeftRight, 
@@ -8,6 +8,7 @@ import {
 
 export default function Navbar() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { 
     userRole, 
     setRole, 
@@ -79,57 +80,24 @@ export default function Navbar() {
               );
             })}
 
-            {/* Role specific links */}
-            {userRole === 'user' && (
-              <Link 
-                to="/dashboard" 
-                className="flex items-center gap-1.5 text-sm font-semibold text-blue-600 hover:text-blue-700 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100 transition"
-              >
-                <LayoutGrid className="h-4 w-4" />
-                Seeker Dashboard
-              </Link>
-            )}
-
-            {userRole === 'owner' && (
-              <Link 
-                to="/owner/dashboard" 
-                className="flex items-center gap-1.5 text-sm font-semibold text-emerald-600 hover:text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-100 transition"
-              >
-                <PieChart className="h-4 w-4" />
-                Owner Portal
-              </Link>
-            )}
-
-            {userRole === 'admin' && (
-              <Link 
-                to="/admin/dashboard" 
-                className="flex items-center gap-1.5 text-sm font-semibold text-indigo-600 hover:text-indigo-700 bg-indigo-50 px-3 py-1.5 rounded-lg border border-indigo-100 transition"
-              >
-                <ShieldAlert className="h-4 w-4" />
-                Admin Panel
-              </Link>
-            )}
+            {/* Sell Link */}
+            <Link 
+              to={currentUser ? "/owner/dashboard" : "/signin?redirect=/owner/dashboard"}
+              className={`text-sm font-semibold transition-colors duration-200 ${
+                location.pathname === '/owner/dashboard'
+                  ? 'text-primary font-bold border-b-2 border-primary pb-1 pt-1' 
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Sell
+            </Link>
           </div>
 
           {/* User Controls & Dropdowns */}
           <div className="hidden md:flex items-center space-x-4">
             
-            {/* Quick Demo Role Switcher */}
-            <div className="flex items-center gap-2 bg-slate-100/80 px-2 py-1 rounded-lg border border-slate-200">
-              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">Role:</span>
-              <select 
-                value={userRole} 
-                onChange={handleRoleChange}
-                className="bg-transparent text-xs font-semibold text-slate-700 focus:outline-none cursor-pointer"
-              >
-                <option value="user">User (Seeker)</option>
-                <option value="owner">Owner / Broker</option>
-                <option value="admin">Platform Admin</option>
-              </select>
-            </div>
-
             {/* Compare Icon */}
-            {userRole === 'user' && (
+            {currentUser && (
               <Link 
                 to="/compare" 
                 title="Compare Properties"
@@ -140,7 +108,7 @@ export default function Navbar() {
             )}
 
             {/* Saved Wishlist Icon */}
-            {userRole === 'user' && (
+            {currentUser && (
               <Link 
                 to="/saved" 
                 title="Saved Properties"
@@ -272,51 +240,17 @@ export default function Navbar() {
                 {link.name}
               </Link>
             ))}
-            
-            {userRole === 'user' && (
-              <Link 
-                to="/dashboard" 
-                onClick={() => setIsOpen(false)}
-                className="block px-3 py-2 text-base font-semibold text-blue-600 hover:bg-blue-50 rounded-xl"
-              >
-                Seeker Dashboard
-              </Link>
-            )}
-
-            {userRole === 'owner' && (
-              <Link 
-                to="/owner/dashboard" 
-                onClick={() => setIsOpen(false)}
-                className="block px-3 py-2 text-base font-semibold text-emerald-600 hover:bg-emerald-50 rounded-xl"
-              >
-                Owner Portal
-              </Link>
-            )}
-
-            {userRole === 'admin' && (
-              <Link 
-                to="/admin/dashboard" 
-                onClick={() => setIsOpen(false)}
-                className="block px-3 py-2 text-base font-semibold text-indigo-600 hover:bg-indigo-50 rounded-xl"
-              >
-                Admin Panel
-              </Link>
-            )}
+            {/* Sell Link */}
+            <Link 
+              to={currentUser ? "/owner/dashboard" : "/signin?redirect=/owner/dashboard"}
+              onClick={() => setIsOpen(false)}
+              className="block px-3 py-2 text-base font-semibold text-slate-700 hover:bg-slate-50 hover:text-primary rounded-xl"
+            >
+              Sell
+            </Link>
           </div>
 
           <div className="pt-4 border-t border-slate-100 space-y-4">
-            <div className="flex items-center justify-between px-3">
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Role Preview:</span>
-              <select 
-                value={userRole} 
-                onChange={(e) => { setRole(e.target.value); setIsOpen(false); }}
-                className="bg-slate-100 border border-slate-200 text-xs font-semibold text-slate-700 py-1 px-2.5 rounded-lg focus:outline-none"
-              >
-                <option value="user">User (Seeker)</option>
-                <option value="owner">Owner / Broker</option>
-                <option value="admin">Platform Admin</option>
-              </select>
-            </div>
 
             <div className="flex justify-around items-center pt-2">
               <Link 
