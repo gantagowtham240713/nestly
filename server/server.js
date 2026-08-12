@@ -3,7 +3,6 @@ import http from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { initializeDatabase } from './database.js';
 
 // Route Imports
 import authRoutes from './authRoutes.js';
@@ -78,17 +77,9 @@ io.on('connection', (socket) => {
   });
 });
 
-// Initialize database then start server
-initializeDatabase()
-  .then(() => {
-    server.listen(PORT, () => {
-      console.log(`=================================================`);
-      console.log(`🚀 Nestly Backend listening on port ${PORT}`);
-      console.log(`⚙️  API Endpoint base: http://localhost:${PORT}/api`);
-      console.log(`=================================================`);
-    });
-  })
-  .catch((error) => {
-    console.error('Failed to initialize database. Server cannot start.', error);
-    process.exit(1);
-  });
+server.listen(PORT, () => {
+  console.log(`=================================================`);
+  console.log(`🚀 Nestly Backend listening on port ${PORT}`);
+  console.log(`⚙️  API Endpoint base: http://localhost:${PORT}/api`);
+  console.log(`=================================================`);
+});

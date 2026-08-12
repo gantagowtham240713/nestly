@@ -1,7 +1,7 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { getDbConnection } from './database.js';
+import { dbStore } from './dbStore.js';
 import { authenticateToken } from './authMiddleware.js';
 
 const router = express.Router();
@@ -15,13 +15,10 @@ router.post('/signup', async (req, res) => {
     return res.status(400).json({ error: 'Missing required signup fields.' });
   }
 
-  const db = await getDbConnection();
-
   try {
     // Check if user already exists
-    const existingUser = await db.get('SELECT id FROM profiles WHERE email = ?', [email.toLowerCase()]);
+    const existingUser = dbStore.profiles.find(u => u.email.toLowerCase() === email.toLowerCase());
     if (existingUser) {
-      await db.close();
       return res.status(400).json({ error: 'An account with this email address already exists.' });
     }
 
@@ -36,13 +33,6 @@ router.post('/signup', async (req, res) => {
     const emailVerified = 0; // Starts unverified
     const verificationStatus = role === 'owner' ? 'pending' : 'verified';
 
-    // Insert profile
-    await db.run(
-      `INSERT INTO profiles (id, name, email, avatar, role, phone, city, language, email_verified, verification_status, password_hash)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [userId, name, email.toLowerCase(), avatar, role, phone, city, language, emailVerified, verificationStatus, passwordHash]
-    );
-
     const newUser = {
       id: userId,
       name,
@@ -53,14 +43,20 @@ router.post('/signup', async (req, res) => {
       city,
       language,
       email_verified: emailVerified,
-      verification_status: verificationStatus
+      verification_status: verificationStatus,
+      password_hash: passwordHash,
+      created_at: new Date().toISOString()
     };
 
-    await db.close();
-    return res.status(201).json({ user: newUser });
+    dbStore.profiles.push(newUser);
+
+    // Return profile without password hash
+    const userProfile = { ...newUser };
+    delete userProfile.password_hash;
+
+    return res.status(201).json({ user: userProfile });
   } catch (error) {
     console.error('Signup error:', error);
-    await db.close();
     return res.status(500).json({ error: 'Internal server error during registration.' });
   }
 });
@@ -73,26 +69,21 @@ router.post('/signin', async (req, res) => {
     return res.status(400).json({ error: 'Please enter both email and password.' });
   }
 
-  const db = await getDbConnection();
-
   try {
     // Fetch profile
-    const user = await db.get('SELECT * FROM profiles WHERE email = ?', [email.toLowerCase()]);
+    const user = dbStore.profiles.find(u => u.email.toLowerCase() === email.toLowerCase());
     if (!user) {
-      await db.close();
       return res.status(401).json({ error: 'Invalid email or password. Account not found.' });
     }
 
     // Verify password
     const isPasswordValid = bcrypt.compareSync(password, user.password_hash);
     if (!isPasswordValid) {
-      await db.close();
       return res.status(401).json({ error: 'Invalid email or password.' });
     }
 
     // Check if email is verified
     if (user.email_verified === 0) {
-      await db.close();
       return res.status(400).json({ 
         error: 'Email address has not been verified yet.', 
         email_unverified: true,
@@ -124,11 +115,9 @@ router.post('/signin', async (req, res) => {
       verification_status: user.verification_status
     };
 
-    await db.close();
     return res.json({ token, user: userProfile });
   } catch (error) {
     console.error('Signin error:', error);
-    await db.close();
     return res.status(500).json({ error: 'Internal server error during login.' });
   }
 });
@@ -137,25 +126,19 @@ router.post('/signin', async (req, res) => {
 router.post('/resend-verification', async (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: 'Email is required.' });
-
-  // In a real application, you would send an email here.
-  // For this local backend, we return success.
   return res.json({ success: true, message: 'Verification link resent.' });
 });
 
-// 4. Reset Password Request (mocked)
+// 4. Reset Password Request
 router.post('/forgot-password', async (req, res) => {
   const { email } = req.body;
-  const db = await getDbConnection();
   try {
-    const user = await db.get('SELECT id FROM profiles WHERE email = ?', [email.toLowerCase()]);
-    await db.close();
+    const user = dbStore.profiles.find(u => u.email.toLowerCase() === email.toLowerCase());
     if (!user) {
       return res.status(404).json({ error: 'Account with this email does not exist.' });
     }
     return res.json({ success: true, message: 'Password reset link sent to your email.' });
   } catch (error) {
-    await db.close();
     return res.status(500).json({ error: 'Internal server error.' });
   }
 });
@@ -165,30 +148,38 @@ router.post('/update-password', authenticateToken, async (req, res) => {
   const { password } = req.body;
   if (!password) return res.status(400).json({ error: 'New password is required.' });
 
-  const db = await getDbConnection();
   try {
-    const passwordHash = bcrypt.hashSync(password, 10);
-    await db.run('UPDATE profiles SET password_hash = ? WHERE id = ?', [passwordHash, req.user.id]);
-    await db.close();
+    const user = dbStore.profiles.find(u => u.id === req.user.id);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+    user.password_hash = bcrypt.hashSync(password, 10);
     return res.json({ success: true, message: 'Password updated successfully.' });
   } catch (error) {
-    await db.close();
     return res.status(500).json({ error: 'Failed to update password.' });
   }
 });
 
 // 6. Get Current User profile
 router.get('/me', authenticateToken, async (req, res) => {
-  const db = await getDbConnection();
   try {
-    const user = await db.get('SELECT id, name, email, avatar, role, phone, city, language, verification_status FROM profiles WHERE id = ?', [req.user.id]);
-    await db.close();
+    const user = dbStore.profiles.find(u => u.id === req.user.id);
     if (!user) {
       return res.status(404).json({ error: 'User profile not found.' });
     }
-    return res.json({ user });
+    const userProfile = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      avatar: user.avatar,
+      role: user.role,
+      phone: user.phone,
+      city: user.city,
+      language: user.language,
+      verification_status: user.verification_status
+    };
+    return res.json({ user: userProfile });
   } catch (error) {
-    await db.close();
     return res.status(500).json({ error: 'Internal server error fetching profile.' });
   }
 });
@@ -196,35 +187,41 @@ router.get('/me', authenticateToken, async (req, res) => {
 // 7. Complete User Profile Update
 router.post('/complete-profile', authenticateToken, async (req, res) => {
   const updates = req.body; // e.g. name, phone, city, language, avatar
-  const db = await getDbConnection();
-
   try {
-    // Generate valid update fields
+    const user = dbStore.profiles.find(u => u.id === req.user.id);
+    if (!user) {
+      return res.status(404).json({ error: 'User profile not found.' });
+    }
+
     const validFields = ['name', 'phone', 'city', 'language', 'avatar'];
-    const updateClauses = [];
-    const params = [];
+    let updated = false;
 
     for (const key of validFields) {
       if (updates[key] !== undefined) {
-        updateClauses.push(`${key} = ?`);
-        params.push(updates[key]);
+        user[key] = updates[key];
+        updated = true;
       }
     }
 
-    if (updateClauses.length === 0) {
-      await db.close();
+    if (!updated) {
       return res.status(400).json({ error: 'No valid update fields provided.' });
     }
 
-    params.push(req.user.id);
-    await db.run(`UPDATE profiles SET ${updateClauses.join(', ')} WHERE id = ?`, params);
+    const userProfile = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      avatar: user.avatar,
+      role: user.role,
+      phone: user.phone,
+      city: user.city,
+      language: user.language,
+      verification_status: user.verification_status
+    };
 
-    const updatedUser = await db.get('SELECT id, name, email, avatar, role, phone, city, language, verification_status FROM profiles WHERE id = ?', [req.user.id]);
-    await db.close();
-    return res.json({ user: updatedUser });
+    return res.json({ user: userProfile });
   } catch (error) {
     console.error('Complete profile error:', error);
-    await db.close();
     return res.status(500).json({ error: 'Failed to complete user profile.' });
   }
 });
@@ -234,17 +231,75 @@ router.post('/verify', async (req, res) => {
   const { userId } = req.body;
   if (!userId) return res.status(400).json({ error: 'User ID is required.' });
 
-  const db = await getDbConnection();
   try {
-    const result = await db.run('UPDATE profiles SET email_verified = 1 WHERE id = ?', [userId]);
-    await db.close();
-    if (result.changes === 0) {
+    const user = dbStore.profiles.find(u => u.id === userId);
+    if (!user) {
       return res.status(404).json({ error: 'User not found.' });
     }
+    user.email_verified = 1;
     return res.json({ success: true, message: 'Email verified successfully.' });
   } catch (error) {
-    await db.close();
     return res.status(500).json({ error: 'Verification failed.' });
+  }
+});
+
+// 9. Google OAuth Simulation Route
+router.post('/google-login', async (req, res) => {
+  const { email, name, avatar } = req.body;
+
+  if (!email || !name) {
+    return res.status(400).json({ error: 'Missing Google profile information.' });
+  }
+
+  try {
+    let user = dbStore.profiles.find(u => u.email.toLowerCase() === email.toLowerCase());
+
+    if (!user) {
+      // Register new user from Google
+      const userId = `usr-google-${Date.now()}`;
+      const avatarUrl = avatar || `https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(name)}`;
+      const passwordHash = bcrypt.hashSync('google-oauth-dummy-hash', 10);
+
+      user = {
+        id: userId,
+        name,
+        email: email.toLowerCase(),
+        avatar: avatarUrl,
+        role: 'user',
+        phone: null,
+        city: null,
+        language: 'English',
+        email_verified: 1,
+        verification_status: 'verified',
+        password_hash: passwordHash,
+        created_at: new Date().toISOString()
+      };
+      dbStore.profiles.push(user);
+    }
+
+    // Generate JWT
+    const token = jwt.sign(
+      { id: user.id, email: user.email, role: user.role },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    const userProfile = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      avatar: user.avatar,
+      role: user.role,
+      phone: user.phone,
+      city: user.city,
+      language: user.language,
+      verification_status: user.verification_status
+    };
+
+    return res.json({ token, user: userProfile });
+  } catch (error) {
+    console.error('Google OAuth error:', error);
+    return res.status(500).json({ error: 'Internal server error during Google login.' });
   }
 });
 

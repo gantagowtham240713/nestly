@@ -1,0 +1,16 @@
+- [x] Update Backend Server
+  - [x] Add `/google-login` POST route to `server/authRoutes.js`
+- [x] Update Frontend Auth Service
+  - [x] Add `signInWithGoogle` method to `src/services/supabaseAuth.js`
+- [x] Create Welcome Page Component
+  - [x] Create `src/pages/auth/Welcome.jsx` with Nestly branding, Sign In / Sign Up, and Continue with Google choices
+- [x] Integrate Google Login button & Chooser dialog
+  - [x] Add Continue with Google button and simulated Choose Account popup to `SignIn.jsx`
+  - [x] Add Continue with Google button and simulated Choose Account popup to `SignUp.jsx`
+- [x] Protect Application Routing
+  - [x] Modify `src/App.jsx` to redirect unauthenticated users to `/welcome`, and show Navbar / Footer only when logged in
+- [x] Clean up Navbar
+  - [x] Remove Guest text fallbacks in `src/components/Navbar.jsx`
+- [/] Verify build and functionality
+  - [ ] Run `npm run build`
+  - [ ] Test the auth redirection and Google sign-in local flow
