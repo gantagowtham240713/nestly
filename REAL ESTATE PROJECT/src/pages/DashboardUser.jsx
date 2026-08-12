@@ -55,26 +55,26 @@ export default function DashboardUser() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-slate-50 pb-20 animate-fade-in text-left">
+    <div className="w-full min-h-screen bg-[#FFFDF7] pb-20 animate-fade-in text-left text-[#2D2A26]">
       
       {/* Banner header */}
-      <div className="bg-slate-900 text-white py-10 px-4 sm:px-6 lg:px-8 shadow-md">
+      <div className="bg-[#F8F5ED] border-b border-[#E8E1D5] py-10 px-4 sm:px-6 lg:px-8 shadow-sm">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6">
           <div className="space-y-1">
-            <div className="inline-flex items-center gap-1 bg-blue-500/20 text-blue-400 text-[10px] font-bold px-2 py-0.5 rounded uppercase border border-blue-500/20">
+              <div className="inline-flex items-center gap-1 bg-[#d4af37]/10 text-[#b8962e] text-[10px] font-bold px-2 py-0.5 rounded uppercase border border-[#d4af37]/20">
               Seeker Control Panel
             </div>
-            <h1 className="font-display font-extrabold text-2xl sm:text-3xl tracking-tight">
+            <h1 className="font-display font-extrabold text-2xl sm:text-3xl tracking-tight text-[#2D2A26]">
               My Real Estate Dashboard
             </h1>
-            <p className="text-slate-400 text-xs font-semibold">Track saved properties, view compatibility matches, and run saved searches.</p>
+            <p className="text-[#6F6A61] text-xs font-semibold">Track saved properties, view compatibility matches, and run saved searches.</p>
           </div>
           
           <Link
             to="/search"
-            className="px-5 py-2.5 bg-primary hover:bg-primary-hover text-white text-xs font-bold rounded-xl transition flex items-center gap-1.5"
+            className="px-5 py-2.5 bg-gradient-to-r from-gold to-luxury-gold-dark hover:opacity-95 text-[#0a0e1a] text-xs font-black rounded-xl transition flex items-center gap-1.5 shadow-md shadow-gold/5"
           >
-            <Search className="h-4 w-4" />
+            <Search className="h-4 w-4 text-[#0a0e1a]" />
             Find New Properties
           </Link>
         </div>
@@ -84,42 +84,42 @@ export default function DashboardUser() {
         
         {/* Statistics grids */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-10">
-          <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div className="bg-white p-5 rounded-3xl border border-[#E8E1D5] shadow-sm flex items-center justify-between">
             <div>
-              <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Bookmarks</p>
-              <h3 className="font-display font-black text-2xl text-slate-800">{favorites.length}</h3>
+              <p className="text-[10px] font-extrabold uppercase tracking-wider text-[#9A948A]">Bookmarks</p>
+              <h3 className="font-display font-black text-2xl text-[#2D2A26]">{favorites.length}</h3>
             </div>
-            <div className="h-10 w-10 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center text-rose-500">
+            <div className="h-10 w-10 bg-[#F8F5ED] border border-[#E8E1D5] rounded-xl flex items-center justify-center text-[#d4af37]">
               <Heart className="h-5 w-5 fill-current" />
             </div>
           </div>
 
-          <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div className="bg-white p-5 rounded-3xl border border-[#E8E1D5] shadow-sm flex items-center justify-between">
             <div>
-              <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Inquiries Sent</p>
-              <h3 className="font-display font-black text-2xl text-slate-800">{conversations.length}</h3>
+              <p className="text-[10px] font-extrabold uppercase tracking-wider text-[#9A948A]">Inquiries Sent</p>
+              <h3 className="font-display font-black text-2xl text-[#2D2A26]">{conversations.length}</h3>
             </div>
-            <div className="h-10 w-10 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center text-blue-500">
+            <div className="h-10 w-10 bg-[#F8F5ED] border border-[#E8E1D5] rounded-xl flex items-center justify-center text-[#d4af37]">
               <MessageSquare className="h-5 w-5" />
             </div>
           </div>
 
-          <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div className="bg-white p-5 rounded-3xl border border-[#E8E1D5] shadow-sm flex items-center justify-between">
             <div>
-              <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Saved Searches</p>
-              <h3 className="font-display font-black text-2xl text-slate-800">{savedSearches.length + 2}</h3>
+              <p className="text-[10px] font-extrabold uppercase tracking-wider text-[#9A948A]">Saved Searches</p>
+              <h3 className="font-display font-black text-2xl text-[#2D2A26]">{savedSearches.length + 2}</h3>
             </div>
-            <div className="h-10 w-10 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center text-orange-500">
+            <div className="h-10 w-10 bg-[#F8F5ED] border border-[#E8E1D5] rounded-xl flex items-center justify-center text-[#d4af37]">
               <Search className="h-5 w-5" />
             </div>
           </div>
 
-          <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex items-center justify-between">
+          <div className="bg-white p-5 rounded-3xl border border-[#E8E1D5] shadow-sm flex items-center justify-between">
             <div>
-              <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Calculated Rent</p>
-              <h3 className="font-display font-black text-xl text-slate-800">₹22,000/mo</h3>
+              <p className="text-[10px] font-extrabold uppercase tracking-wider text-[#9A948A]">Calculated Rent</p>
+              <h3 className="font-display font-black text-xl text-[#2D2A26]">₹22,000/mo</h3>
             </div>
-            <div className="h-10 w-10 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center text-emerald-500">
+            <div className="h-10 w-10 bg-[#F8F5ED] border border-[#E8E1D5] rounded-xl flex items-center justify-center text-[#d4af37]">
               <Landmark className="h-5 w-5" />
             </div>
           </div>
@@ -134,20 +134,20 @@ export default function DashboardUser() {
             {/* Wishlist segment */}
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <h3 className="font-display font-bold text-slate-800 text-lg flex items-center gap-1.5">
-                  <Heart className="h-5 w-5 text-rose-500 fill-current" />
+                <h3 className="font-display font-bold text-[#2D2A26] text-lg flex items-center gap-1.5">
+                  <Heart className="h-5 w-5 text-gold fill-current" />
                   My Shortlisted Properties
                 </h3>
-                <Link to="/saved" className="text-xs font-bold text-primary hover:underline flex items-center gap-0.5">
+                <Link to="/saved" className="text-xs font-bold text-gold hover:underline flex items-center gap-0.5">
                   Manage collections <ChevronRight className="h-3.5 w-3.5" />
                 </Link>
               </div>
 
               {myFavorites.length === 0 ? (
-                <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center space-y-4">
-                  <Bookmark className="h-10 w-10 text-slate-300 mx-auto" />
-                  <p className="text-slate-500 text-xs font-semibold">You haven't favorited any property listings yet.</p>
-                  <Link to="/search" className="inline-block px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold">
+                <div className="bg-white rounded-3xl border border-[#E8E1D5] p-12 text-center space-y-4 shadow-sm">
+                  <Bookmark className="h-10 w-10 text-[#9A948A] mx-auto" />
+                  <p className="text-[#6F6A61] text-xs font-semibold">You haven't favorited any property listings yet.</p>
+                  <Link to="/search" className="inline-block px-4 py-2 bg-gradient-to-r from-gold to-luxury-gold-dark text-[#0a0e1a] rounded-xl text-xs font-black">
                     Explore Listings
                   </Link>
                 </div>
@@ -161,9 +161,9 @@ export default function DashboardUser() {
             </div>
 
             {/* Custom AI recommendations */}
-            <div className="space-y-4 border-t border-slate-200 pt-8">
-              <h3 className="font-display font-bold text-slate-800 text-lg flex items-center gap-1.5">
-                <Sparkles className="h-5 w-5 text-orange-500 animate-pulse-slow" />
+            <div className="space-y-4 border-t border-[#E8E1D5] pt-8">
+              <h3 className="font-display font-bold text-[#2D2A26] text-lg flex items-center gap-1.5">
+                <Sparkles className="h-5 w-5 text-gold animate-pulse" />
                 Top AI Recommendations (95%+ Matches)
               </h3>
               
@@ -172,30 +172,30 @@ export default function DashboardUser() {
                   <Link 
                     key={p.id}
                     to={`/property/${p.id}`}
-                    className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm hover:shadow-md hover:scale-[1.01] transition duration-200 flex flex-col"
+                    className="bg-white border border-[#E8E1D5] rounded-3xl overflow-hidden shadow-sm hover:border-[#d4af37]/20 hover:shadow-md hover:scale-[1.01] transition duration-200 flex flex-col text-left"
                   >
-                    <div className="h-44 w-full relative bg-slate-900">
+                    <div className="h-44 w-full relative bg-[#F3EDE0]">
                       <img src={p.images[0]} alt={p.title} className="w-full h-full object-cover" />
-                      <div className="absolute top-3 left-3 bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-lg flex items-center gap-0.5">
-                        <Sparkles className="h-3 w-3" />
+                      <div className="absolute top-3 left-3 bg-gold text-[#0a0e1a] text-[10px] font-bold px-2 py-0.5 rounded-lg flex items-center gap-0.5 shadow-sm">
+                        <Sparkles className="h-3 w-3 text-[#0a0e1a]" />
                         {p.matchScore}% Match
                       </div>
                     </div>
                     <div className="p-5 space-y-3 flex-1 flex flex-col justify-between">
                       <div>
-                        <h4 className="font-display font-bold text-sm text-slate-800 line-clamp-1">{p.title}</h4>
-                        <p className="text-[10px] text-slate-400 font-semibold">{p.locality}, {p.city}</p>
+                        <h4 className="font-display font-bold text-sm text-[#2D2A26] line-clamp-1 group-hover:text-[#d4af37]">{p.title}</h4>
+                        <p className="text-[10px] text-[#6F6A61] font-semibold">{p.locality}, {p.city}</p>
                         
                         <div className="mt-2.5 space-y-1">
                           {p.matchReasons.slice(0, 2).map((r, idx) => (
-                            <p key={idx} className="text-[11px] text-slate-500 font-semibold">{r}</p>
+                            <p key={idx} className="text-[11px] text-slate-400 font-semibold">{r}</p>
                           ))}
                         </div>
                       </div>
 
-                      <div className="flex justify-between items-center pt-3 border-t border-slate-100 mt-2 text-xs font-extrabold">
-                        <span className="text-primary">{p.purpose === 'rent' ? `₹${p.price.toLocaleString()}/mo` : `₹${(p.price / 100000).toFixed(0)} L`}</span>
-                        <span className="text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-lg">View match</span>
+                      <div className="flex justify-between items-center pt-3 border-t border-[#E8E1D5] mt-2 text-xs font-extrabold">
+                        <span className="text-gold">{p.purpose === 'rent' ? `₹${p.price.toLocaleString()}/mo` : `₹${(p.price / 100000).toFixed(0)} L`}</span>
+                        <span className="text-gold bg-gold/10 px-2 py-0.5 rounded-lg">View match</span>
                       </div>
                     </div>
                   </Link>
@@ -209,67 +209,67 @@ export default function DashboardUser() {
           <div className="space-y-6">
             
             {/* Quick searches launcher */}
-            <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
-              <h3 className="font-display font-bold text-slate-800 text-sm mb-4 flex items-center gap-1.5">
-                <Search className="h-4.5 w-4.5 text-primary" />
+            <div className="bg-white rounded-3xl border border-[#E8E1D5] p-6 shadow-sm">
+              <h3 className="font-display font-bold text-[#2D2A26] text-sm mb-4 flex items-center gap-1.5">
+                <Search className="h-4.5 w-4.5 text-gold" />
                 Quick Saved Searches
               </h3>
               
               <div className="space-y-2">
                 <button
                   onClick={() => handleRunSearch("2BHK under ₹25k in Ameerpet near metro")}
-                  className="w-full p-3 rounded-2xl border border-slate-200 hover:border-blue-200 hover:bg-blue-50/20 text-left transition flex justify-between items-center group font-semibold text-xs text-slate-700"
+                  className="w-full p-3 rounded-2xl bg-[#F8F5ED] border border-[#E8E1D5] hover:border-[#d4af37]/25 hover:bg-[#d4af37]/5 text-left transition flex justify-between items-center group font-semibold text-xs text-[#6F6A61]"
                 >
                   <span className="truncate max-w-[200px]">"2BHK under ₹25k in Ameerpet"</span>
-                  <ArrowRight className="h-4 w-4 text-slate-400 group-hover:text-primary transition group-hover:translate-x-0.5" />
+                  <ArrowRight className="h-4 w-4 text-[#9A948A] group-hover:text-[#d4af37] transition group-hover:translate-x-0.5" />
                 </button>
 
                 <button
                   onClick={() => handleRunSearch("Villa in Kompally under 80 Lakhs with parking")}
-                  className="w-full p-3 rounded-2xl border border-slate-200 hover:border-blue-200 hover:bg-blue-50/20 text-left transition flex justify-between items-center group font-semibold text-xs text-slate-700"
+                  className="w-full p-3 rounded-2xl bg-[#F8F5ED] border border-[#E8E1D5] hover:border-[#d4af37]/25 hover:bg-[#d4af37]/5 text-left transition flex justify-between items-center group font-semibold text-xs text-[#6F6A61]"
                 >
                   <span className="truncate max-w-[200px]">"Villa in Kompally under 80 L"</span>
-                  <ArrowRight className="h-4 w-4 text-slate-400 group-hover:text-primary transition group-hover:translate-x-0.5" />
+                  <ArrowRight className="h-4 w-4 text-[#9A948A] group-hover:text-[#d4af37] transition group-hover:translate-x-0.5" />
                 </button>
               </div>
             </div>
 
             {/* Calculator parameters overview */}
-            <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm text-xs font-semibold text-slate-500 space-y-4">
-              <h3 className="font-display font-bold text-slate-800 text-sm flex items-center gap-1.5">
-                <Landmark className="h-4.5 w-4.5 text-emerald-500" />
+            <div className="bg-white rounded-3xl border border-[#E8E1D5] p-6 shadow-sm text-xs font-semibold text-[#6F6A61] space-y-4">
+              <h3 className="font-display font-bold text-[#2D2A26] text-sm flex items-center gap-1.5">
+                <Landmark className="h-4.5 w-4.5 text-gold" />
                 Affordability Budget
               </h3>
               
               <div className="space-y-2">
                 <div className="flex justify-between items-center py-1">
                   <span>Gross Monthly Income</span>
-                  <span className="text-slate-800 font-bold">₹80,000</span>
+                  <span className="text-[#2D2A26] font-bold">₹80,000</span>
                 </div>
-                <div className="flex justify-between items-center py-1 border-t border-slate-100">
+                <div className="flex justify-between items-center py-1 border-t border-[#E8E1D5]">
                   <span>Target Savings Target</span>
-                  <span className="text-slate-800 font-bold">₹15,000</span>
+                  <span className="text-[#2D2A26] font-bold">₹15,000</span>
                 </div>
-                <div className="flex justify-between items-center py-1 border-t border-slate-100">
+                <div className="flex justify-between items-center py-1 border-t border-[#E8E1D5]">
                   <span>Simulated Rent Cap</span>
-                  <span className="text-primary font-bold">₹22,000/mo</span>
+                  <span className="text-gold font-bold">₹22,000/mo</span>
                 </div>
               </div>
 
               <Link 
                 to="/calculator"
-                className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl text-center block transition uppercase tracking-wider"
+                className="w-full py-2.5 bg-[#F8F5ED] hover:bg-[#F3EDE0] border border-[#E8E1D5] text-[#2D2A26] text-xs font-bold rounded-xl text-center block transition uppercase tracking-wider"
               >
                 Recalculate Budget
               </Link>
             </div>
 
             {/* Verification Checkmark */}
-            <div className="bg-emerald-50/50 border border-emerald-100 rounded-3xl p-5 shadow-sm text-left flex gap-3 items-start">
-              <ShieldCheck className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5 animate-pulse-slow" />
+            <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-3xl p-5 shadow-lg text-left flex gap-3 items-start">
+              <ShieldCheck className="h-5 w-5 text-emerald-400 shrink-0 mt-0.5 animate-pulse-slow" />
               <div className="space-y-1">
-                <h5 className="font-display font-bold text-xs text-emerald-800">Phone & Email Verified</h5>
-                <p className="text-[11px] text-slate-500 leading-normal font-semibold">Your seeker profile has undergone standard verified registration.</p>
+                <h5 className="font-display font-bold text-xs text-emerald-700">Phone & Email Verified</h5>
+              <p className="text-[11px] text-[#6F6A61] leading-normal font-semibold">Your seeker profile has undergone standard verified registration.</p>
               </div>
             </div>
 

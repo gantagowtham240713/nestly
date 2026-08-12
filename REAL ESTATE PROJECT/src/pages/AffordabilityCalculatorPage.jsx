@@ -30,21 +30,21 @@ export default function AffordabilityCalculatorPage() {
 
     // Risk scoring
     let riskLevel = "Low Risk";
-    let riskColor = "text-emerald-600 bg-emerald-50 border-emerald-200";
+    let riskColor = "text-emerald-400 bg-emerald-500/10 border-emerald-500/20";
     let riskDesc = "Your selected rent is well within safe thresholds. You have healthy breathing room for savings and unexpected emergencies.";
 
     const rentRatio = selectedRent / monthlyIncome;
     if (leftoverIncome < 0) {
       riskLevel = "Extreme Risk";
-      riskColor = "text-red-700 bg-red-50 border-red-200 animate-pulse";
+      riskColor = "text-red-400 bg-red-500/10 border-red-500/20 animate-pulse";
       riskDesc = "CRITICAL: Your selected rent and expenses exceed your income. You will be actively draining your savings each month.";
     } else if (rentRatio > 0.45) {
       riskLevel = "High Risk";
-      riskColor = "text-red-600 bg-red-50 border-red-200";
+      riskColor = "text-red-400 bg-red-500/10 border-red-500/20";
       riskDesc = "WARNING: Rent takes up more than 45% of your gross income. You will have minimal cushion if emergency expenses occur.";
     } else if (rentRatio > 0.3) {
       riskLevel = "Medium Risk";
-      riskColor = "text-orange-600 bg-orange-50 border-orange-200";
+      riskColor = "text-orange-400 bg-orange-500/10 border-orange-500/20";
       riskDesc = "MODERATE: Rent is between 30% and 45% of your income. It is manageable, but requires strict budgeting on discretionary expenses.";
     }
 
@@ -74,52 +74,52 @@ export default function AffordabilityCalculatorPage() {
   const chartData = useMemo(() => {
     const leftover = Math.max(0, calculations.leftoverIncome);
     return [
-      { name: 'Selected Rent', value: selectedRent, color: '#2563eb' },
-      { name: 'Monthly Expenses', value: monthlyExpenses, color: '#f97316' },
-      { name: 'Target Savings', value: targetSavings, color: '#10b981' },
-      { name: 'Surplus Cash', value: leftover, color: '#6366f1' },
+      { name: 'Selected Rent', value: selectedRent, color: '#d4af37' },
+      { name: 'Monthly Expenses', value: monthlyExpenses, color: '#aa841e' },
+      { name: 'Target Savings', value: targetSavings, color: '#f3e5ab' },
+      { name: 'Surplus Cash', value: leftover, color: '#854d0e' },
     ];
   }, [selectedRent, monthlyExpenses, targetSavings, calculations.leftoverIncome]);
 
-  const COLORS = ['#2563eb', '#f97316', '#10b981', '#6366f1'];
+  const COLORS = ['#d4af37', '#aa841e', '#f3e5ab', '#854d0e'];
 
   const handleNavigateToMatches = () => {
     navigate(`/search?q=2BHK rent under ${selectedRent} in ${preferredLocation}`);
   };
 
   return (
-    <div className="w-full min-h-screen bg-slate-50 pb-20 animate-fade-in">
+    <div className="w-full min-h-screen bg-[#FFFDF7] pb-20 animate-fade-in text-[#2D2A26]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         
         {/* Page title */}
-        <div className="text-center max-w-2xl mx-auto space-y-3 mb-12">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 border border-blue-100 rounded-full text-primary text-xs font-bold shadow-sm">
-            <Sparkles className="h-3.5 w-3.5 text-orange-500 animate-pulse-slow" />
+        <div className="text-center max-w-2xl mx-auto space-y-3 mb-12 animate-fade-in">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-gold/10 border border-gold/20 rounded-full text-gold text-xs font-bold shadow-sm">
+            <Sparkles className="h-3.5 w-3.5 text-gold animate-pulse" />
             FINANCIAL INTELLIGENCE TOOL
           </div>
-          <h1 className="font-display font-extrabold text-3xl sm:text-4xl text-slate-800 leading-tight">
+          <h1 className="font-display font-extrabold text-3xl sm:text-4xl text-[#2D2A26] leading-tight">
             AI Rental Affordability Calculator
           </h1>
-          <p className="text-slate-500 text-xs sm:text-sm font-semibold">
+          <p className="text-[#6F6A61] text-xs sm:text-sm font-semibold">
             Evaluate your rental budget, simulate monthly leftover surplus, and review tailored risk assessments.
           </p>
         </div>
 
         {/* Core Double panel layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start text-left">
           
           {/* Left panel: Input parameters */}
-          <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 space-y-6 shadow-sm">
-            <h3 className="font-display font-bold text-slate-800 text-lg flex items-center gap-2">
-              <Calculator className="h-5 w-5 text-primary" />
+          <div className="bg-white rounded-3xl border border-[#E8E1D5] p-6 sm:p-8 space-y-6 shadow-md">
+            <h3 className="font-display font-bold text-[#2D2A26] text-lg flex items-center gap-2">
+              <Calculator className="h-5 w-5 text-gold" />
               Monthly Budget Simulator
             </h3>
 
             {/* Income Input */}
             <div className="space-y-2">
               <div className="flex justify-between items-center text-xs font-bold">
-                <label className="text-slate-500 uppercase tracking-wider">Gross Monthly Income</label>
-                <span className="text-slate-800 text-sm">₹{monthlyIncome.toLocaleString()}</span>
+                <label className="text-[#6F6A61] uppercase tracking-wider">Gross Monthly Income</label>
+                <span className="text-[#2D2A26] text-sm">₹{monthlyIncome.toLocaleString()}</span>
               </div>
               <input 
                 type="range" 
@@ -130,18 +130,17 @@ export default function AffordabilityCalculatorPage() {
                 onChange={(e) => {
                   const val = parseInt(e.target.value, 10);
                   setMonthlyIncome(val);
-                  // Auto-scale sliders slightly to make budget valid
                   if (selectedRent > val * 0.5) setSelectedRent(Math.round(val * 0.3));
                 }}
-                className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-primary"
+                className="w-full h-2 bg-[#F3EDE0] rounded-lg appearance-none cursor-pointer accent-[#d4af37]"
               />
             </div>
 
             {/* Expenses Input */}
             <div className="space-y-2">
               <div className="flex justify-between items-center text-xs font-bold">
-                <label className="text-slate-500 uppercase tracking-wider">Estimated Monthly Expenses (Excl. Rent)</label>
-                <span className="text-slate-800 text-sm">₹{monthlyExpenses.toLocaleString()}</span>
+                <label className="text-[#6F6A61] uppercase tracking-wider">Estimated Monthly Expenses (Excl. Rent)</label>
+                <span className="text-[#2D2A26] text-sm">₹{monthlyExpenses.toLocaleString()}</span>
               </div>
               <input 
                 type="range" 
@@ -150,15 +149,15 @@ export default function AffordabilityCalculatorPage() {
                 step="2000"
                 value={monthlyExpenses} 
                 onChange={(e) => setMonthlyExpenses(parseInt(e.target.value, 10))}
-                className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-orange-500"
+                className="w-full h-2 bg-[#F3EDE0] rounded-lg appearance-none cursor-pointer accent-[#d4af37]"
               />
             </div>
 
             {/* Target Savings Input */}
             <div className="space-y-2">
               <div className="flex justify-between items-center text-xs font-bold">
-                <label className="text-slate-500 uppercase tracking-wider">Monthly Target Savings</label>
-                <span className="text-slate-800 text-sm">₹{targetSavings.toLocaleString()}</span>
+                <label className="text-[#6F6A61] uppercase tracking-wider">Monthly Target Savings</label>
+                <span className="text-[#2D2A26] text-sm">₹{targetSavings.toLocaleString()}</span>
               </div>
               <input 
                 type="range" 
@@ -167,15 +166,15 @@ export default function AffordabilityCalculatorPage() {
                 step="2000"
                 value={targetSavings} 
                 onChange={(e) => setTargetSavings(parseInt(e.target.value, 10))}
-                className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-emerald-500"
+                className="w-full h-2 bg-[#F3EDE0] rounded-lg appearance-none cursor-pointer accent-[#d4af37]"
               />
             </div>
 
             {/* Selected Rent Simulation */}
-            <div className="space-y-2 pt-4 border-t border-slate-100">
+            <div className="space-y-2 pt-4 border-t border-[#E8E1D5]">
               <div className="flex justify-between items-center text-xs font-bold">
-                <label className="text-primary font-bold uppercase tracking-wider">Simulated Rent Price</label>
-                <span className="text-primary font-extrabold text-base">₹{selectedRent.toLocaleString()}/mo</span>
+                <label className="text-gold font-bold uppercase tracking-wider">Simulated Rent Price</label>
+                <span className="text-gold font-extrabold text-base">₹{selectedRent.toLocaleString()}/mo</span>
               </div>
               <input 
                 type="range" 
@@ -184,17 +183,17 @@ export default function AffordabilityCalculatorPage() {
                 step="1000"
                 value={selectedRent} 
                 onChange={(e) => setSelectedRent(parseInt(e.target.value, 10))}
-                className="w-full h-2 bg-slate-100 rounded-lg appearance-none cursor-pointer accent-primary"
+                className="w-full h-2 bg-[#F3EDE0] rounded-lg appearance-none cursor-pointer accent-[#d4af37]"
               />
             </div>
 
             {/* Target Location */}
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block">Preferred Search Location</label>
+              <label className="text-xs font-bold text-[#6F6A61] uppercase tracking-wider block">Preferred Search Location</label>
               <select 
                 value={preferredLocation} 
                 onChange={(e) => setPreferredLocation(e.target.value)}
-                className="w-full border border-slate-200 rounded-xl text-xs font-bold text-slate-700 py-3 px-4 focus:outline-none focus:border-primary"
+                className="w-full bg-white border border-[#E8E1D5] rounded-xl text-xs font-bold text-[#2D2A26] py-3 px-4 focus:outline-none focus:border-[#d4af37]"
               >
                 <option value="Hyderabad">Hyderabad</option>
                 <option value="Bangalore">Bangalore</option>
@@ -211,8 +210,8 @@ export default function AffordabilityCalculatorPage() {
           <div className="space-y-6">
             
             {/* Risk Indicator Card */}
-            <div className={`p-6 rounded-3xl border flex flex-col sm:flex-row gap-4 items-start shadow-sm transition-all duration-300 ${calculations.riskColor}`}>
-              <div className="h-10 w-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center shrink-0">
+            <div className={`p-6 rounded-3xl border flex flex-col sm:flex-row gap-4 items-start shadow-lg transition-all duration-300 ${calculations.riskColor}`}>
+              <div className="h-10 w-10 rounded-xl bg-white/10 border border-white/10 flex items-center justify-center shrink-0">
                 <AlertTriangle className="h-5 w-5" />
               </div>
               <div className="space-y-1 text-left">
@@ -222,35 +221,35 @@ export default function AffordabilityCalculatorPage() {
             </div>
 
             {/* Math Ranges breakdown */}
-            <div className="bg-white rounded-3xl border border-slate-200 p-6 space-y-4 shadow-sm text-xs font-semibold text-slate-600">
+            <div className="bg-white rounded-3xl border border-[#E8E1D5] p-6 space-y-4 shadow-md text-xs font-semibold text-[#6F6A61]">
               <div className="flex justify-between items-center py-1">
                 <span>Recommended Ideal Rent (30% Rule)</span>
-                <span className="text-slate-800 font-bold">₹{calculations.idealRent.toLocaleString()}/mo</span>
+                <span className="text-[#2D2A26] font-bold">₹{calculations.idealRent.toLocaleString()}/mo</span>
               </div>
-              <div className="flex justify-between items-center py-1 border-t border-slate-100">
+              <div className="flex justify-between items-center py-1 border-t border-[#E8E1D5]">
                 <span>Affordable Budget Range (Based on parameters)</span>
-                <span className="text-slate-800 font-bold">₹{calculations.minAffordableRent.toLocaleString()} - ₹{calculations.maxAffordableRent.toLocaleString()}</span>
+                <span className="text-[#2D2A26] font-bold">₹{calculations.minAffordableRent.toLocaleString()} - ₹{calculations.maxAffordableRent.toLocaleString()}</span>
               </div>
-              <div className="flex justify-between items-center py-1 border-t border-slate-100">
+              <div className="flex justify-between items-center py-1 border-t border-[#E8E1D5]">
                 <span>Simulated Surplus (Leftover cash)</span>
-                <span className={`font-bold ${calculations.leftoverIncome >= 0 ? 'text-emerald-600' : 'text-red-500'}`}>
+                <span className={`font-bold ${calculations.leftoverIncome >= 0 ? 'text-gold' : 'text-red-400'}`}>
                   ₹{calculations.leftoverIncome.toLocaleString()}/mo
                 </span>
               </div>
             </div>
 
             {/* Custom AI advice */}
-            <div className="bg-orange-50/50 border border-orange-100 text-orange-800 p-6 rounded-3xl shadow-sm text-left flex gap-3 items-start">
-              <Sparkles className="h-5 w-5 text-orange-500 shrink-0 mt-0.5 animate-pulse-slow" />
+            <div className="bg-gold/10 border border-gold/20 text-gold p-6 rounded-3xl shadow-lg text-left flex gap-3 items-start">
+              <Sparkles className="h-5 w-5 text-gold shrink-0 mt-0.5 animate-pulse" />
               <div className="space-y-1">
                 <h5 className="font-display font-bold text-xs">AI Smart Advice</h5>
-                <p className="text-xs font-semibold leading-relaxed">{calculations.financialAdvice}</p>
+                <p className="text-xs font-semibold leading-relaxed text-[#b8962e]">{calculations.financialAdvice}</p>
               </div>
             </div>
 
             {/* Allocation pie chart */}
-            <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
-              <h4 className="font-display font-bold text-xs uppercase tracking-wider text-slate-400 mb-2 text-left">Simulated Income Allocation</h4>
+            <div className="bg-white rounded-3xl border border-[#E8E1D5] p-6 shadow-md">
+              <h4 className="font-display font-bold text-xs uppercase tracking-wider text-slate-500 mb-2 text-left">Simulated Income Allocation</h4>
               
               <div className="h-48 flex items-center justify-center">
                 <ResponsiveContainer width="100%" height="100%">
@@ -268,14 +267,14 @@ export default function AffordabilityCalculatorPage() {
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
-                    <Tooltip formatter={(value) => `₹${value.toLocaleString()}`} />
+                    <Tooltip contentStyle={{ backgroundColor: '#ffffff', borderColor: 'rgba(212,175,55,0.2)', borderRadius: '12px', color: '#2D2A26' }} formatter={(value) => `₹${value.toLocaleString()}`} />
                   </PieChart>
                 </ResponsiveContainer>
                 
                 {/* Labels legend */}
                 <div className="space-y-1 text-left pl-4 w-44 shrink-0">
                   {chartData.map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-1.5 text-[11px] font-bold text-slate-600">
+                    <div key={idx} className="flex items-center gap-1.5 text-[11px] font-bold text-slate-400">
                       <span className="h-2.5 w-2.5 rounded-full shrink-0" style={{ backgroundColor: item.color }}></span>
                       <span className="truncate">{item.name}</span>
                     </div>
@@ -288,10 +287,10 @@ export default function AffordabilityCalculatorPage() {
             {calculations.leftoverIncome >= 0 && (
               <button
                 onClick={handleNavigateToMatches}
-                className="w-full py-4 rounded-2xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-sm tracking-wider uppercase transition shadow-md flex items-center justify-center gap-1.5"
+                className="w-full py-4 rounded-2xl bg-gradient-to-r from-gold to-luxury-gold-dark text-[#0a0e1a] font-black text-sm tracking-wider uppercase transition shadow-md flex items-center justify-center gap-1.5 hover:opacity-95"
               >
                 Find Homes under ₹{selectedRent.toLocaleString()}/mo in {preferredLocation}
-                <ArrowRight className="h-4.5 w-4.5" />
+                <ArrowRight className="h-4.5 w-4.5 text-[#0a0e1a]" />
               </button>
             )}
 

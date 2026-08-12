@@ -2,423 +2,312 @@ import React, { useState, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { authService } from '../../services/supabaseAuth';
-import { 
-  Sparkles, Mail, Lock, User, Phone, Globe, 
-  MapPin, FileText, Check, ShieldAlert, RefreshCw, ChevronLeft
+import { useAppStore } from '../../store/useAppStore';
+import {
+  Sparkles, Mail, Lock, User, Phone, Globe,
+  MapPin, FileText, RefreshCw, ChevronLeft
 } from 'lucide-react';
+
+import CitySelector from '../../components/CitySelector';
 
 export default function SignUp() {
   const navigate = useNavigate();
+  const { initApp } = useAppStore();
 
-  // Selection step: bypassed to always register as user
-  const selectedRole = 'user';
+  const selectedRole = 'user'; // Always register as user
   const [isLoading, setIsLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
-  const [tempPassword, setTempPassword] = useState("");
+  const [errorMsg, setErrorMsg] = useState('');
+  const [tempPassword, setTempPassword] = useState('');
 
-  const { register, handleSubmit, formState: { errors } } = useForm();
-
-  // Evaluate password strength in real-time
-  const passwordStrength = useMemo(() => {
-    if (!tempPassword) return { score: 0, label: "Empty", color: "bg-slate-200", barWidth: "w-0" };
-
-    let metCriteria = 0;
-    if (tempPassword.length >= 8) metCriteria++;
-    if (/[A-Z]/.test(tempPassword)) metCriteria++;
-    if (/[a-z]/.test(tempPassword)) metCriteria++;
-    if (/[0-9]/.test(tempPassword)) metCriteria++;
-    if (/[^A-Za-z0-9]/.test(tempPassword)) metCriteria++;
-
-    let label = "Weak";
-    let color = "bg-red-500";
-    let barWidth = "w-1/3";
-
-    if (metCriteria >= 5) {
-      label = "Strong";
-      color = "bg-emerald-500";
-      barWidth = "w-full";
-    } else if (metCriteria >= 3) {
-      label = "Medium";
-      color = "bg-orange-500";
-      barWidth = "w-2/3";
+  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm({
+    defaultValues: {
+      city: 'Hyderabad',
+      language: 'English'
     }
+  });
 
-    return {
-      score: metCriteria,
-      label,
-      color,
-      barWidth
-    };
+  const selectedCity = watch('city');
+
+  // Password strength
+  const passwordStrength = useMemo(() => {
+    if (!tempPassword) return { score: 0, label: 'Empty', color: 'bg-slate-200', barWidth: 'w-0' };
+    let met = 0;
+    if (tempPassword.length >= 8) met++;
+    if (/[A-Z]/.test(tempPassword)) met++;
+    if (/[a-z]/.test(tempPassword)) met++;
+    if (/[0-9]/.test(tempPassword)) met++;
+    if (/[^A-Za-z0-9]/.test(tempPassword)) met++;
+
+    if (met >= 5) return { score: met, label: 'Strong', color: 'bg-emerald-500', barWidth: 'w-full' };
+    if (met >= 3) return { score: met, label: 'Medium', color: 'bg-orange-500', barWidth: 'w-2/3' };
+    return { score: met, label: 'Weak', color: 'bg-red-500', barWidth: 'w-1/3' };
   }, [tempPassword]);
 
   const onSubmit = async (data) => {
-    setErrorMsg("");
-    
-    // Check password matches
-    if (data.password !== data.confirmPassword) {
-      setErrorMsg("Passwords do not match.");
+    // Guard: prevent double-submission
+    if (isLoading) return;
+
+    setErrorMsg('');
+
+    // Client-side validation
+    if (!data.fullName || !data.email || !data.password || !data.confirmPassword || !data.phone) {
+      setErrorMsg('Please fill out all required fields.');
       return;
     }
-
-    // Check strength
+    if (!/\S+@\S+\.\S+/.test(data.email)) {
+      setErrorMsg('Please enter a valid email address.');
+      return;
+    }
+    if (data.password.length < 8) {
+      setErrorMsg('Password must be at least 8 characters long.');
+      return;
+    }
+    if (data.password !== data.confirmPassword) {
+      setErrorMsg('Passwords do not match.');
+      return;
+    }
     if (passwordStrength.score < 3) {
-      setErrorMsg("Password is too weak. Please meet more security requirements.");
+      setErrorMsg('Please choose a stronger password (at least Medium strength).');
       return;
     }
 
     setIsLoading(true);
 
     try {
-      const metadata = {
-        full_name: data.fullName,
-        phone: data.phone,
-        role: selectedRole,
-        city: data.city,
-        language: data.language || 'English',
-        governmentId: data.governmentId ? data.governmentId[0]?.name : 'simulated_upload.pdf'
-      };
-
       const { data: user, error } = await authService.signUp({
-        email: data.email,
+        email: data.email.trim(),
         password: data.password,
-        metadata
+        metadata: {
+          full_name: data.fullName,
+          phone: data.phone,
+          role: selectedRole,
+          city: data.city || 'Hyderabad',
+          language: data.language || 'English'
+        }
       });
 
       if (error) {
-        setErrorMsg(error.message);
+        if (error.already_exists) {
+          setErrorMsg('Email already exists. Please login instead.');
+        } else {
+          setErrorMsg(error.message);
+        }
         setIsLoading(false);
         return;
       }
 
-      // Success, route to verification screen
+      // Success — session active, refresh store then go to dashboard
+      await initApp();
       setIsLoading(false);
-      navigate('/verify-email');
-
+      navigate('/');
     } catch (err) {
-      setErrorMsg("An unexpected registration error occurred.");
+      console.error('SignUp exception:', err);
+      setErrorMsg('An unexpected registration error occurred. Please try again.');
       setIsLoading(false);
     }
+
   };
 
   return (
-    <div className="w-full min-h-[calc(100vh-64px)] flex items-center justify-center bg-slate-50 py-12 px-4 sm:px-6 lg:px-8 text-left animate-fade-in">
-      
+    <div className="w-full min-h-[calc(100vh-64px)] flex items-center justify-center bg-[#F8F5ED] py-12 px-4 sm:px-6 lg:px-8 text-left animate-fade-in">
+
       {/* Container */}
-      <div className="max-w-2xl w-full bg-white border border-slate-200 p-8 sm:p-10 rounded-3xl shadow-xl shadow-blue-500/5 relative overflow-hidden">
-        {/* Glow watermarks */}
-        <div className="absolute -top-12 -right-12 h-36 w-36 rounded-full bg-blue-500/10 blur-2xl"></div>
+      <div className="max-w-2xl w-full bg-white border border-[#d4af37]/15 p-8 sm:p-10 rounded-3xl shadow-2xl relative overflow-hidden">
+        {/* Glow */}
+        <div className="absolute -top-12 -right-12 h-36 w-36 rounded-full bg-gold/5 blur-2xl"></div>
 
-        {/* STEP 1: Role Selection Screen */}
-        {selectedRole === null && (
-          <div className="space-y-8">
-            <div className="text-center space-y-2">
-              <div className="inline-flex items-center gap-1 bg-blue-50 border border-blue-100 text-primary text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">
-                Step 1 of 2
-              </div>
-              <h2 className="font-display font-extrabold text-2xl text-slate-800 tracking-tight">
-                Choose Account Type
-              </h2>
-              <p className="text-xs text-slate-400 font-semibold leading-relaxed max-w-sm mx-auto">
-                Are you looking to rent/buy properties, or are you an owner listing units?
-              </p>
-            </div>
+        <div className="space-y-6">
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
-              {/* Card User */}
-              <div 
-                onClick={() => setSelectedRole('user')}
-                className="group p-6 border-2 border-slate-200 hover:border-primary rounded-2xl cursor-pointer bg-white transition hover:shadow-lg flex flex-col justify-between hover:scale-[1.01] min-h-[200px]"
-              >
-                <div className="space-y-4">
-                  <div className="h-12 w-12 rounded-xl bg-blue-50 text-primary flex items-center justify-center border border-blue-100 font-sans text-xl group-hover:bg-primary group-hover:text-white transition">
-                    👤
-                  </div>
-                  <h3 className="font-display font-bold text-sm text-slate-800 uppercase tracking-wider">Home Seeker</h3>
-                  <p className="text-[11px] text-slate-400 font-semibold leading-normal">
-                    Find and rent/buy houses, use conversational search, compare properties, and chat with landlords.
-                  </p>
-                </div>
-                <div className="text-primary text-xs font-bold flex items-center gap-1 group-hover:translate-x-1.5 transition-transform mt-6">
-                  Select Seeker Profile <ChevronLeft className="h-3.5 w-3.5 rotate-180" />
-                </div>
-              </div>
-
-              {/* Card Owner */}
-              <div 
-                onClick={() => setSelectedRole('owner')}
-                className="group p-6 border-2 border-slate-200 hover:border-emerald-500 rounded-2xl cursor-pointer bg-white transition hover:shadow-lg flex flex-col justify-between hover:scale-[1.01] min-h-[200px]"
-              >
-                <div className="space-y-4">
-                  <div className="h-12 w-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100 font-sans text-xl group-hover:bg-emerald-600 group-hover:text-white transition">
-                    🏠
-                  </div>
-                  <h3 className="font-display font-bold text-sm text-slate-800 uppercase tracking-wider">Owner / Broker</h3>
-                  <p className="text-[11px] text-slate-400 font-semibold leading-normal">
-                    Post properties, manage listings availability, upload documentation, and interact with leads.
-                  </p>
-                </div>
-                <div className="text-emerald-600 text-xs font-bold flex items-center gap-1 group-hover:translate-x-1.5 transition-transform mt-6">
-                  Select Owner Profile <ChevronLeft className="h-3.5 w-3.5 rotate-180" />
-                </div>
-              </div>
-            </div>
-
-            <div className="text-center pt-6 border-t border-slate-100 mt-6 text-xs font-semibold text-slate-500">
-              Already have an account?{' '}
-              <Link to="/signin" className="text-primary hover:underline font-bold">
-                Sign In
-              </Link>
-            </div>
+          {/* Header */}
+          <div className="text-center space-y-2 pb-4 border-b border-white/5">
+            <h2 className="font-display font-extrabold text-2xl text-white tracking-tight">
+              Create Your Account
+            </h2>
+            <p className="text-xs text-slate-400 font-semibold leading-relaxed">
+              Join Nestly to find and list properties. A verification code will be sent to your email.
+            </p>
           </div>
-        )}
 
-        {/* STEP 2: Sign Up Forms */}
-        {selectedRole !== null && (
-          <div className="space-y-6">
-            
-            {/* Form header details */}
-            <div className="text-center space-y-2 pb-4 border-b border-slate-100">
-              <h2 className="font-display font-extrabold text-2xl text-slate-800 tracking-tight">
-                Create Your Account
-              </h2>
-              <p className="text-xs text-slate-400 font-semibold leading-relaxed">
-                Join Nestly to find and list properties.
-              </p>
+          {errorMsg && (
+            <div className="p-3.5 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-xs font-bold">
+              {errorMsg}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
+
+            {/* Row 1: Full Name & Email */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wide">Full Name</label>
+                <div className="relative">
+                  <User className="absolute left-3.5 top-3.5 h-4 w-4 text-gold" />
+                  <input
+                    type="text"
+                    id="signup-name"
+                    {...register('fullName', { required: 'Name is required' })}
+                    placeholder="e.g. Gowtham"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-11 pr-4 text-xs font-semibold focus:outline-none focus:border-gold text-white placeholder-slate-500"
+                  />
+                </div>
+                {errors.fullName && <span className="text-[10px] text-red-500 font-bold">{errors.fullName.message}</span>}
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wide">Email Address</label>
+                <div className="relative">
+                  <Mail className="absolute left-3.5 top-3.5 h-4 w-4 text-gold" />
+                  <input
+                    type="email"
+                    id="signup-email"
+                    {...register('email', { required: 'Email is required' })}
+                    placeholder="gowtham@example.com"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-11 pr-4 text-xs font-semibold focus:outline-none focus:border-gold text-white placeholder-slate-500"
+                  />
+                </div>
+                {errors.email && <span className="text-[10px] text-red-500 font-bold">{errors.email.message}</span>}
+              </div>
             </div>
 
-            {errorMsg && (
-              <div className="p-3.5 bg-red-50 border border-red-100 text-red-600 rounded-xl text-xs font-bold animate-pulse">
-                {errorMsg}
+            {/* Row 2: Phone & City */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wide">Phone Number</label>
+                <div className="relative">
+                  <Phone className="absolute left-3.5 top-3.5 h-4 w-4 text-gold" />
+                  <input
+                    type="tel"
+                    id="signup-phone"
+                    {...register('phone', { required: 'Phone is required' })}
+                    placeholder="+91 99999 88888"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-11 pr-4 text-xs font-semibold focus:outline-none focus:border-gold text-white placeholder-slate-500"
+                  />
+                </div>
+                {errors.phone && <span className="text-[10px] text-red-500 font-bold">{errors.phone.message}</span>}
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-[#6F6A61] uppercase tracking-wide">City</label>
+                <CitySelector 
+                  id="signup-city"
+                  value={selectedCity} 
+                  onChange={(val) => setValue('city', val)} 
+                />
+              </div>
+            </div>
+
+            {/* Preferred Language */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-wide">Preferred Language</label>
+              <div className="relative">
+                <Globe className="absolute left-3.5 top-3.5 h-4 w-4 text-gold" />
+                <select
+                  {...register('language')}
+                  className="w-full bg-white border border-[#E8E1D5] rounded-xl py-2.5 pl-11 pr-4 text-xs font-semibold focus:outline-none focus:border-[#d4af37] text-[#2D2A26] placeholder-[#9A948A]"
+                >
+                  <option value="English">English</option>
+                  <option value="Hindi">Hindi (हिंदी)</option>
+                  <option value="Tamil">Tamil (தமிழ்)</option>
+                  <option value="Telugu">Telugu (తెలుగు)</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Password & Confirm */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wide">Password</label>
+                <div className="relative">
+                  <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-gold" />
+                  <input
+                    type="password"
+                    id="signup-password"
+                    {...register('password', { required: 'Password is required' })}
+                    onChange={(e) => setTempPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-11 pr-4 text-xs font-semibold focus:outline-none focus:border-gold text-white placeholder-slate-500"
+                  />
+                </div>
+                {errors.password && <span className="text-[10px] text-red-500 font-bold">{errors.password.message}</span>}
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wide">Confirm Password</label>
+                <div className="relative">
+                  <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-gold" />
+                  <input
+                    type="password"
+                    id="signup-confirm-password"
+                    {...register('confirmPassword', { required: 'Please confirm your password' })}
+                    placeholder="••••••••"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl py-2.5 pl-11 pr-4 text-xs font-semibold focus:outline-none focus:border-gold text-white placeholder-slate-500"
+                  />
+                </div>
+                {errors.confirmPassword && <span className="text-[10px] text-red-500 font-bold">{errors.confirmPassword.message}</span>}
+              </div>
+            </div>
+
+            {/* Password strength indicator */}
+            {tempPassword && (
+              <div className="space-y-2 p-3 bg-white/[0.01] border border-white/5 rounded-xl text-left">
+                <div className="flex justify-between items-center text-[10px] font-bold text-slate-400">
+                  <span>Password Strength: <span className="text-white uppercase">{passwordStrength.label}</span></span>
+                  <span>{passwordStrength.score}/5 Criteria met</span>
+                </div>
+                <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                  <div className={`h-full ${passwordStrength.color} ${passwordStrength.barWidth} transition-all duration-300`}></div>
+                </div>
+                <div className="grid grid-cols-2 gap-1 text-[9px] font-semibold text-slate-500">
+                  <span className={tempPassword.length >= 8 ? 'text-emerald-400' : ''}>✓ Min 8 characters</span>
+                  <span className={/[A-Z]/.test(tempPassword) ? 'text-emerald-400' : ''}>✓ Upper Case letter</span>
+                  <span className={/[a-z]/.test(tempPassword) ? 'text-emerald-400' : ''}>✓ Lower Case letter</span>
+                  <span className={/[0-9]/.test(tempPassword) ? 'text-emerald-400' : ''}>✓ Number (0-9)</span>
+                  <span className={/[^A-Za-z0-9]/.test(tempPassword) ? 'text-emerald-400' : ''}>✓ Special symbol</span>
+                </div>
               </div>
             )}
 
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-              
-              {/* Row 1: Full Name & Email */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Full Name</label>
-                  <div className="relative">
-                    <User className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
-                    <input 
-                      type="text" 
-                      {...register('fullName', { required: 'Name is required' })}
-                      placeholder="e.g. Gowtham"
-                      className="w-full border border-slate-200 rounded-xl py-2.5 pl-11 pr-4 text-xs font-semibold focus:outline-none focus:border-primary"
-                    />
-                  </div>
-                  {errors.fullName && <span className="text-[10px] text-red-500 font-bold">{errors.fullName.message}</span>}
-                </div>
+            {/* Terms checkbox */}
+            <label className="flex items-start gap-2 cursor-pointer text-xs font-semibold text-slate-400 select-none pt-2">
+              <input
+                type="checkbox"
+                required
+                className="rounded border-white/10 text-gold h-4.5 w-4.5 cursor-pointer mt-0.5 bg-white/5 accent-gold"
+              />
+              <span>By ticking this box, you accept the Nestly Terms of Service, Privacy Policies, and Cookie requirements.</span>
+            </label>
 
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Email address</label>
-                  <div className="relative">
-                    <Mail className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
-                    <input 
-                      type="email" 
-                      {...register('email', { required: 'Email is required' })}
-                      placeholder="gowtham@example.com"
-                      className="w-full border border-slate-200 rounded-xl py-2.5 pl-11 pr-4 text-xs font-semibold focus:outline-none focus:border-primary"
-                    />
-                  </div>
-                  {errors.email && <span className="text-[10px] text-red-500 font-bold">{errors.email.message}</span>}
-                </div>
-              </div>
+            {/* Submit */}
+            <div className="pt-4">
+              <button
+                type="submit"
+                id="signup-submit"
+                disabled={isLoading}
+                className="w-full py-3.5 bg-gradient-to-r from-gold to-luxury-gold-dark hover:opacity-95 disabled:opacity-60 disabled:cursor-not-allowed text-[#0a0e1a] text-xs font-black tracking-wider uppercase rounded-xl shadow-md transition flex items-center justify-center gap-1.5"
+              >
+                {isLoading ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 animate-spin text-[#0a0e1a]" />
+                    Creating Account…
+                  </>
+                ) : (
+                  <>
+                    Create Account
+                    <Sparkles className="h-4 w-4 text-[#0a0e1a] animate-pulse" />
+                  </>
+                )}
+              </button>
+            </div>
 
-              {/* Row 2: Phone & City */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Phone Number</label>
-                  <div className="relative">
-                    <Phone className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
-                    <input 
-                      type="tel" 
-                      {...register('phone', { required: 'Phone is required' })}
-                      placeholder="+91 99999 88888"
-                      className="w-full border border-slate-200 rounded-xl py-2.5 pl-11 pr-4 text-xs font-semibold focus:outline-none focus:border-primary"
-                    />
-                  </div>
-                  {errors.phone && <span className="text-[10px] text-red-500 font-bold">{errors.phone.message}</span>}
-                </div>
+          </form>
 
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">City</label>
-                  <div className="relative">
-                    <MapPin className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
-                    <select
-                      {...register('city')}
-                      className="w-full border border-slate-200 rounded-xl py-2.5 pl-11 pr-4 text-xs font-semibold focus:outline-none focus:border-primary bg-transparent"
-                    >
-                      <option value="Hyderabad">Hyderabad</option>
-                      <option value="Bangalore">Bangalore</option>
-                      <option value="Mumbai">Mumbai</option>
-                      <option value="Delhi">Delhi</option>
-                      <option value="Pune">Pune</option>
-                      <option value="Chennai">Chennai</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              {/* Seeker extra: Language */}
-              {selectedRole === 'user' && (
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Preferred Language</label>
-                  <div className="relative">
-                    <Globe className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
-                    <select
-                      {...register('language')}
-                      className="w-full border border-slate-200 rounded-xl py-2.5 pl-11 pr-4 text-xs font-semibold focus:outline-none focus:border-primary bg-transparent"
-                    >
-                      <option value="English">English</option>
-                      <option value="Hindi">Hindi (हिंदी)</option>
-                      <option value="Tamil">Tamil (தமிழ்)</option>
-                      <option value="Telugu">Telugu (తెలుగు)</option>
-                    </select>
-                  </div>
-                </div>
-              )}
-
-              {/* Owner extras: Company, Business address, Doc Upload */}
-              {selectedRole === 'owner' && (
-                <>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Company Name (Optional)</label>
-                      <input 
-                        type="text" 
-                        {...register('company')}
-                        placeholder="e.g. Dream Properties Ltd"
-                        className="w-full border border-slate-200 rounded-xl py-2.5 px-4 text-xs font-semibold focus:outline-none focus:border-primary"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">RERA Number (Optional)</label>
-                      <input 
-                        type="text" 
-                        {...register('reraNumber')}
-                        placeholder="e.g. PR/KN/170731/000001"
-                        className="w-full border border-slate-200 rounded-xl py-2.5 px-4 text-xs font-semibold focus:outline-none focus:border-primary"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Business Address</label>
-                    <input 
-                      type="text" 
-                      {...register('businessAddress', { required: 'Business address is required' })}
-                      placeholder="e.g. Office 402, Signature Towers, Madhapur"
-                      className="w-full border border-slate-200 rounded-xl py-2.5 px-4 text-xs font-semibold focus:outline-none focus:border-primary"
-                    />
-                    {errors.businessAddress && <span className="text-[10px] text-red-500 font-bold">{errors.businessAddress.message}</span>}
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Upload Government ID (Aadhaar/PAN/RERA Doc)</label>
-                    <input 
-                      type="file" 
-                      {...register('governmentId', { required: 'Government ID document upload is required' })}
-                      className="w-full border border-dashed border-slate-200 rounded-xl py-3 px-4 text-xs font-semibold focus:outline-none bg-slate-50 cursor-pointer"
-                    />
-                    {errors.governmentId && <span className="text-[10px] text-red-500 font-bold">{errors.governmentId.message}</span>}
-                  </div>
-                </>
-              )}
-
-              {/* Password & Confirm Passwords */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Password</label>
-                  <div className="relative">
-                    <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
-                    <input 
-                      type="password" 
-                      {...register('password', { required: 'Password is required' })}
-                      onChange={(e) => setTempPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="w-full border border-slate-200 rounded-xl py-2.5 pl-11 pr-4 text-xs font-semibold focus:outline-none focus:border-primary"
-                    />
-                  </div>
-                  {errors.password && <span className="text-[10px] text-red-500 font-bold">{errors.password.message}</span>}
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Confirm Password</label>
-                  <div className="relative">
-                    <Lock className="absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
-                    <input 
-                      type="password" 
-                      {...register('confirmPassword', { required: 'Password confirm is required' })}
-                      placeholder="••••••••"
-                      className="w-full border border-slate-200 rounded-xl py-2.5 pl-11 pr-4 text-xs font-semibold focus:outline-none focus:border-primary"
-                    />
-                  </div>
-                  {errors.confirmPassword && <span className="text-[10px] text-red-500 font-bold">{errors.confirmPassword.message}</span>}
-                </div>
-              </div>
-
-              {/* Live Password Strength indicator */}
-              {tempPassword && (
-                <div className="space-y-2 p-3 bg-slate-50 border border-slate-200 rounded-xl">
-                  <div className="flex justify-between items-center text-[10px] font-bold text-slate-500">
-                    <span>Password Strength: <span className="text-slate-800 uppercase">{passwordStrength.label}</span></span>
-                    <span>{passwordStrength.score}/5 Criteria met</span>
-                  </div>
-                  
-                  {/* Progress bar */}
-                  <div className="h-1.5 w-full bg-slate-200 rounded-full overflow-hidden">
-                    <div className={`h-full ${passwordStrength.color} ${passwordStrength.barWidth} transition-all duration-300`}></div>
-                  </div>
-
-                  {/* Rules guidelines checklist */}
-                  <div className="grid grid-cols-2 gap-1 text-[9px] font-semibold text-slate-400">
-                    <span className={tempPassword.length >= 8 ? 'text-emerald-600' : ''}>✓ Min 8 characters</span>
-                    <span className={/[A-Z]/.test(tempPassword) ? 'text-emerald-600' : ''}>✓ Upper Case letter</span>
-                    <span className={/[a-z]/.test(tempPassword) ? 'text-emerald-600' : ''}>✓ Lower Case letter</span>
-                    <span className={/[0-9]/.test(tempPassword) ? 'text-emerald-600' : ''}>✓ Number (0-9)</span>
-                    <span className={/[^A-Za-z0-9]/.test(tempPassword) ? 'text-emerald-600' : ''}>✓ Special symbol</span>
-                  </div>
-                </div>
-              )}
-
-              {/* Terms Checkbox */}
-              <label className="flex items-start gap-2 cursor-pointer text-xs font-semibold text-slate-500 select-none pt-2">
-                <input 
-                  type="checkbox" 
-                  required
-                  className="rounded border-slate-300 text-primary h-4.5 w-4.5 cursor-pointer mt-0.5"
-                />
-                <span>By ticking this box, you accept the Nestly Terms of Service, Privacy Policies, and Cookie requirements.</span>
-              </label>
-
-              {/* Submit Buttons */}
-              <div className="space-y-3 pt-4">
-                <button
-                  type="submit"
-                  disabled={isLoading}
-                  className="w-full py-3.5 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-400 text-white text-xs font-bold tracking-wider uppercase rounded-xl shadow-md transition flex items-center justify-center gap-1.5"
-                >
-                  {isLoading ? (
-                    <>
-                      <RefreshCw className="h-4 w-4 animate-spin" />
-                      Creating Account
-                    </>
-                  ) : (
-                    <>
-                      Create Account
-                      <Sparkles className="h-4 w-4 text-orange-400" />
-                    </>
-                  )}
-                </button>
-              </div>
-
-            </form>
+          <div className="text-center pt-4 border-t border-white/5 text-xs font-semibold text-slate-400">
+            Already have an account?{' '}
+            <Link to="/signin" className="text-gold hover:underline font-bold">Sign In</Link>
           </div>
-        )}
 
+        </div>
       </div>
-
     </div>
   );
 }

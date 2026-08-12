@@ -1,9 +1,12 @@
 import { create } from 'zustand';
 import { dbService } from '../services/supabase';
 import { authService } from '../services/supabaseAuth';
-import { io } from 'socket.io-client';
+import { supabase } from '../services/supabaseClient';
+import { seedSampleProperties } from '../services/supabaseSeed';
 
-let socket = null;
+let messageSub = null;
+let notifSub = null;
+let typingSub = null;
 
 export const useAppStore = create((set, get) => {
   // Sync state from LocalStorage if available
@@ -31,78 +34,120 @@ export const useAppStore = create((set, get) => {
     parsedPreferences: null,
     activeConvoId: null,
 
-    // Socket actions
+    // Realtime subscriptions
     connectSocket: () => {
       const user = get().currentUser;
-      if (!user || socket) return;
+      if (!user) return;
+      if (messageSub || notifSub || typingSub) return;
 
-      socket = io('http://localhost:5000');
-      
-      // Join user's personal room for notifications
-      socket.emit('join_user', user.id);
+      // 1. Listen for new messages
+      messageSub = supabase
+        .channel('realtime_messages')
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'messages' },
+          async (payload) => {
+            const newMessage = payload.new;
+            const state = get();
+            const currentConvo = state.conversations.find(c => c.id === newMessage.conversation_id);
+            if (currentConvo) {
+              const exists = currentConvo.messages.some(m => m.id === newMessage.id);
+              if (exists) return;
 
-      // Join all active conversation rooms for real-time messages
-      const convos = get().conversations;
-      convos.forEach(c => {
-        socket.emit('join_conversation', c.id);
-      });
+              const isCurrentUserSender = newMessage.sender_id === user.id;
+              let sender;
+              if (user.role === 'owner') {
+                sender = isCurrentUserSender ? 'owner' : 'user';
+              } else {
+                sender = isCurrentUserSender ? 'user' : 'owner';
+              }
 
-      // Listen for real-time messages
-      socket.on('message_received', ({ conversationId, message }) => {
-        set((state) => {
-          const updatedConvos = state.conversations.map(c => {
-            if (c.id === conversationId) {
-              // Prevent duplicates
-              const exists = c.messages.some(m => m.id === message.id);
-              if (exists) return c;
-
-              return {
-                ...c,
-                messages: [...c.messages, message],
-                unreadCount: c.id === state.activeConvoId ? 0 : c.unreadCount + 1
+              const formattedMsg = {
+                id: newMessage.id,
+                sender_id: newMessage.sender_id,
+                sender,
+                text: newMessage.text,
+                imageUrl: newMessage.image_url || null,
+                timestamp: newMessage.created_at
               };
-            }
-            return c;
-          });
-          return { conversations: updatedConvos };
-        });
-      });
 
-      // Listen for typing indicator
-      socket.on('typing_status', ({ conversationId, typing }) => {
-        set((state) => {
-          const updatedConvos = state.conversations.map(c => {
-            if (c.id === conversationId) {
-              return { ...c, typing };
+              set((state) => {
+                const updatedConvos = state.conversations.map(c => {
+                  if (c.id === newMessage.conversation_id) {
+                    return {
+                      ...c,
+                      messages: [...c.messages, formattedMsg],
+                      unreadCount: c.id === state.activeConvoId ? 0 : c.unreadCount + 1
+                    };
+                  }
+                  return c;
+                });
+                return { conversations: updatedConvos };
+              });
             }
-            return c;
-          });
-          return { conversations: updatedConvos };
-        });
-      });
+          }
+        )
+        .subscribe();
 
-      // Listen for notifications
-      socket.on('notification_received', (notif) => {
-        set((state) => {
-          const exists = state.notifications.some(n => n.id === notif.id);
-          if (exists) return {};
-          return { notifications: [notif, ...state.notifications] };
-        });
-      });
+      // 2. Listen for notifications
+      notifSub = supabase
+        .channel('realtime_notifications')
+        .on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` },
+          (payload) => {
+            const newNotif = payload.new;
+            set((state) => {
+              const exists = state.notifications.some(n => n.id === newNotif.id);
+              if (exists) return {};
+              return { notifications: [newNotif, ...state.notifications] };
+            });
+          }
+        )
+        .subscribe();
+
+      // 3. Listen for typing indicators
+      typingSub = supabase
+        .channel('nestly_typing')
+        .on('broadcast', { event: 'typing' }, (payload) => {
+          const { conversationId, typing, senderId } = payload.payload;
+          if (senderId === user.id) return;
+          set((state) => {
+            const updatedConvos = state.conversations.map(c => {
+              if (c.id === conversationId) {
+                return { ...c, typing };
+              }
+              return c;
+            });
+            return { conversations: updatedConvos };
+          });
+        })
+        .subscribe();
     },
 
     disconnectSocket: () => {
-      if (socket) {
-        socket.disconnect();
-        socket = null;
+      if (messageSub) {
+        supabase.removeChannel(messageSub);
+        messageSub = null;
+      }
+      if (notifSub) {
+        supabase.removeChannel(notifSub);
+        notifSub = null;
+      }
+      if (typingSub) {
+        supabase.removeChannel(typingSub);
+        typingSub = null;
       }
     },
 
     // App Initialization
     initApp: async () => {
+      // 0. Seed sample properties into Supabase if needed
+      await seedSampleProperties();
+
       // 1. Fetch properties
       const { data: properties, error: propErr } = await dbService.fetchProperties();
-      if (!propErr) {
+      if (!propErr && properties && properties.length > 0) {
         set({ properties });
       }
 
@@ -261,12 +306,13 @@ export const useAppStore = create((set, get) => {
       });
     },
 
-    // Chat Operations
     sendMessage: async (convoId, messageText) => {
-      // Trigger typing status on socket instantly
-      if (socket) {
-        socket.emit('typing_status_change', { conversationId: convoId, typing: false });
-      }
+      // Send typing status false to typing channel
+      supabase.channel('nestly_typing').send({
+        type: 'broadcast',
+        event: 'typing',
+        payload: { conversationId: convoId, typing: false, senderId: get().currentUser?.id }
+      });
 
       const { data: newMsg, error } = await dbService.sendMessage(convoId, messageText);
       if (error) return;
@@ -297,11 +343,6 @@ export const useAppStore = create((set, get) => {
         const updated = exists 
           ? state.conversations 
           : [conversation, ...state.conversations];
-
-        // Join the socket room for real-time messages
-        if (socket) {
-          socket.emit('join_conversation', conversation.id);
-        }
 
         return { 
           conversations: updated, 

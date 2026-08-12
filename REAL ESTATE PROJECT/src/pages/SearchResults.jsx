@@ -4,7 +4,7 @@ import { useAppStore } from '../store/useAppStore';
 import { parseNaturalLanguageQuery, getChipsFromParsedQuery } from '../services/aiParser';
 import { rankProperties } from '../services/recommendation';
 import PropertyCard from '../components/PropertyCard';
-import LeafletMap from '../components/LeafletMap';
+import GoogleMap from '../components/GoogleMap';
 import { 
   Sparkles, Search, SlidersHorizontal, Map, List, 
   Trash2, X, RefreshCw, AlertTriangle
@@ -132,12 +132,16 @@ export default function SearchResults() {
 
   // Filter & rank properties based on active preference parameters
   const rankedResults = useMemo(() => {
-    // 1. Initial filter based on hard constraints if specified (like Purpose: Rent/Buy, City)
+    // 1. Initial filter based on hard constraints if specified (like Purpose: Rent/Buy, City, Availability)
     let filtered = properties.filter(prop => {
+      // Exclude rented / sold properties by default
+      if (prop.availability === 'rented' || prop.availability === 'sold') {
+        return false;
+      }
       if (activePreferences.purpose && prop.purpose !== activePreferences.purpose) {
         return false;
       }
-      if (activePreferences.city && prop.city.toLowerCase() !== activePreferences.city.toLowerCase()) {
+      if (activePreferences.city && !prop.city.toLowerCase().includes(activePreferences.city.toLowerCase()) && !activePreferences.city.toLowerCase().includes(prop.city.toLowerCase())) {
         return false;
       }
       return true;
@@ -174,27 +178,27 @@ export default function SearchResults() {
   };
 
   return (
-    <div className="w-full flex flex-col min-h-screen bg-slate-50">
+    <div className="w-full flex flex-col min-h-screen bg-[#FFFDF7] text-[#2D2A26]">
       
       {/* 1. Header AI Input Form */}
-      <header className="w-full bg-white border-b border-slate-200 py-6 px-4">
+      <header className="w-full bg-[#F8F5ED] border-b border-[#E8E1D5] py-6 px-4">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row gap-4 items-center justify-between">
-          <form onSubmit={handleSearchSubmit} className="w-full max-w-3xl flex bg-slate-100/80 hover:bg-slate-100 border border-slate-200 focus-within:border-primary focus-within:ring-2 focus-within:ring-blue-100 rounded-2xl p-1.5 transition duration-300">
+          <form onSubmit={handleSearchSubmit} className="w-full max-w-3xl flex bg-white border border-[#E8E1D5] focus-within:border-[#d4af37] rounded-2xl p-1.5 transition duration-300 shadow-sm focus-within:shadow-md">
             <div className="flex-1 flex items-center px-3 gap-2">
-              <Search className="h-5 w-5 text-slate-400 shrink-0" />
+              <Search className="h-5 w-5 text-[#d4af37] shrink-0" />
               <input 
                 type="text" 
                 value={inputVal}
                 onChange={(e) => setInputVal(e.target.value)}
                 placeholder='Search: "2BHK under ₹25k in Gachibowli near metro"'
-                className="w-full bg-transparent border-none text-slate-800 placeholder-slate-400 text-sm font-semibold focus:outline-none py-2.5"
+                className="w-full bg-transparent border-none text-[#2D2A26] placeholder-[#9A948A] text-sm font-semibold focus:outline-none py-2.5"
               />
             </div>
             <button
               type="submit"
-              className="bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs tracking-wider uppercase px-5 py-2.5 rounded-xl transition flex items-center gap-1.5"
+              className="bg-gradient-to-r from-[#d4af37] to-[#b8962e] hover:opacity-95 text-white font-extrabold text-xs tracking-wider uppercase px-5 py-2.5 rounded-xl transition flex items-center gap-1.5 shadow-md shadow-[#d4af37]/10"
             >
-              <Sparkles className="h-3.5 w-3.5 text-orange-400 animate-pulse-slow" />
+              <Sparkles className="h-3.5 w-3.5 animate-pulse" />
               AI Match
             </button>
           </form>
@@ -202,36 +206,36 @@ export default function SearchResults() {
           {/* Quick Stats Summary */}
           <div className="flex items-center gap-3 shrink-0">
             <div className="text-right">
-              <p className="text-xs text-slate-400 font-bold uppercase tracking-wide">AI Ranked Matches</p>
-              <p className="text-sm font-extrabold text-slate-800">{rankedResults.length} properties found</p>
+              <p className="text-xs text-[#9A948A] font-bold uppercase tracking-wide">AI Ranked Matches</p>
+              <p className="text-sm font-extrabold text-[#2D2A26]">{rankedResults.length} properties found</p>
             </div>
           </div>
         </div>
       </header>
 
       {/* 2. Extracted Chips & Refinement toolbar */}
-      <section className="w-full bg-slate-100/50 border-b border-slate-200 py-3.5 px-4 sticky top-16 z-30 backdrop-blur-md">
+      <section className="w-full bg-white border-b border-[#E8E1D5] py-3.5 px-4 sticky top-16 z-30 shadow-sm">
         <div className="max-w-7xl mx-auto flex flex-wrap gap-2 items-center justify-between">
           
           {/* Active tags / chips */}
-          <div className="flex flex-wrap items-center gap-2 flex-1">
-            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest flex items-center gap-1">
-              <SlidersHorizontal className="h-3.5 w-3.5 text-slate-400" />
+          <div className="flex flex-wrap items-center gap-2 flex-1 text-left">
+            <span className="text-[10px] font-extrabold text-[#9A948A] uppercase tracking-widest flex items-center gap-1">
+              <SlidersHorizontal className="h-3.5 w-3.5 text-[#d4af37]" />
               AI Tags:
             </span>
 
             {activeChips.length === 0 ? (
-              <span className="text-xs text-slate-400 font-semibold italic">No active search criteria. Try typing something above.</span>
+              <span className="text-xs text-[#9A948A] font-semibold italic">No active search criteria. Try typing something above.</span>
             ) : (
               activeChips.map((chip) => (
                 <div 
                   key={chip.id}
-                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white hover:bg-red-50 hover:text-red-600 border border-slate-200 hover:border-red-200 text-xs font-bold text-slate-600 transition shadow-sm"
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#F8F5ED] hover:bg-red-50 hover:text-red-500 border border-[#E8E1D5] hover:border-red-200 text-xs font-bold text-[#6F6A61] transition shadow-sm"
                 >
                   <span>{chip.label}</span>
                   <button 
                     onClick={() => handleRemoveChip(chip.id, chip.type)}
-                    className="p-0.5 rounded-full hover:bg-slate-200 text-slate-400 hover:text-slate-600 transition focus:outline-none"
+                    className="p-0.5 rounded-full hover:bg-red-100 text-[#9A948A] hover:text-red-500 transition focus:outline-none"
                     title="Remove filter"
                   >
                     <X className="h-3 w-3" />
@@ -243,7 +247,7 @@ export default function SearchResults() {
             {activeChips.length > 0 && (
               <button 
                 onClick={handleClearAll}
-                className="text-[10px] font-bold text-slate-400 hover:text-red-500 hover:underline flex items-center gap-0.5 transition ml-2"
+                className="text-[10px] font-bold text-[#9A948A] hover:text-red-500 hover:underline flex items-center gap-0.5 transition ml-2"
               >
                 <Trash2 className="h-3.5 w-3.5" />
                 Clear All
@@ -253,17 +257,17 @@ export default function SearchResults() {
 
           {/* Sorting Dropdown */}
           <div className="flex items-center gap-2 shrink-0">
-            <span className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">Sort:</span>
+            <span className="text-[10px] font-extrabold text-[#9A948A] uppercase tracking-widest">Sort:</span>
             <select 
               value={sortBy} 
               onChange={(e) => setSortBy(e.target.value)}
-              className="bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-700 py-1.5 px-3 focus:outline-none cursor-pointer"
+              className="bg-white border border-[#E8E1D5] rounded-lg text-xs font-bold text-[#2D2A26] py-1.5 px-3 focus:outline-none cursor-pointer"
             >
-              <option value="matchScore">🏆 Best Match (AI Score)</option>
-              <option value="priceAsc">Price: Low to High</option>
-              <option value="priceDesc">Price: High to Low</option>
-              <option value="distanceMetro">Distance to Metro</option>
-              <option value="newest">Newest Listings</option>
+              <option value="matchScore" className="bg-white">🏆 Best Match (AI Score)</option>
+              <option value="priceAsc" className="bg-white">Price: Low to High</option>
+              <option value="priceDesc" className="bg-white">Price: High to Low</option>
+              <option value="distanceMetro" className="bg-white">Distance to Metro</option>
+              <option value="newest" className="bg-white">Newest Listings</option>
             </select>
           </div>
 
@@ -278,7 +282,7 @@ export default function SearchResults() {
           
           {/* AI Thinking Animation */}
           {isAiThinking && (
-            <div className="w-full bg-orange-50/50 border border-orange-100 rounded-2xl p-4 flex items-center gap-3 text-orange-600 animate-pulse">
+            <div className="w-full bg-[#d4af37]/5 border border-[#d4af37]/15 rounded-2xl p-4 flex items-center gap-3 text-[#b8962e] animate-pulse">
               <RefreshCw className="h-5 w-5 animate-spin" />
               <span className="text-xs font-bold uppercase tracking-wider">AI is processing details and scoring listings...</span>
             </div>
@@ -288,7 +292,7 @@ export default function SearchResults() {
           {isAiThinking && paginatedProperties.length === 0 && (
             <div className="space-y-6">
               {[...Array(3)].map((_, i) => (
-                <div key={i} className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col md:flex-row gap-6 shadow-sm">
+                <div key={i} className="bg-white border border-[#E8E1D5] rounded-2xl p-6 flex flex-col md:flex-row gap-6 shadow-sm">
                   <div className="w-full md:w-72 h-52 shrink-0 rounded-xl shimmer-loader"></div>
                   <div className="flex-1 space-y-4 py-2">
                     <div className="h-6 w-1/4 rounded shimmer-loader"></div>
@@ -305,15 +309,15 @@ export default function SearchResults() {
           {(!isAiThinking || paginatedProperties.length > 0) && (
             <div className="space-y-6">
               {paginatedProperties.length === 0 ? (
-                <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center max-w-2xl mx-auto space-y-4">
-                  <AlertTriangle className="h-12 w-12 text-orange-500 mx-auto animate-bounce" />
-                  <h3 className="font-display font-bold text-xl text-slate-800">No properties matched directly</h3>
-                  <p className="text-xs font-semibold text-slate-500 leading-relaxed max-w-md mx-auto">
+                <div className="bg-white rounded-3xl border border-[#E8E1D5] p-12 text-center max-w-2xl mx-auto space-y-4 shadow-md">
+                  <AlertTriangle className="h-12 w-12 text-[#d4af37] mx-auto animate-bounce" />
+                  <h3 className="font-display font-bold text-xl text-[#2D2A26]">No properties matched directly</h3>
+                  <p className="text-xs font-semibold text-[#6F6A61] leading-relaxed max-w-md mx-auto">
                     Try refining your search query by shortening the description, broadening the budget, or listing fewer connectivity requirements.
                   </p>
                   <button 
                     onClick={handleClearAll}
-                    className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs tracking-wide rounded-xl transition inline-flex items-center gap-1.5"
+                    className="px-5 py-2.5 bg-gradient-to-r from-[#d4af37] to-[#b8962e] hover:opacity-95 text-white font-extrabold text-xs tracking-wide rounded-xl transition inline-flex items-center gap-1.5"
                   >
                     Reset Search Parameters
                   </button>
@@ -337,7 +341,7 @@ export default function SearchResults() {
             <div className="text-center py-6">
               <button
                 onClick={loadMore}
-                className="px-6 py-3 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-bold text-xs tracking-wider uppercase rounded-xl transition shadow-sm flex items-center gap-2 mx-auto"
+                className="px-6 py-3 bg-white border border-[#E8E1D5] hover:bg-[#F8F5ED] text-[#2D2A26] font-bold text-xs tracking-wider uppercase rounded-xl transition shadow-sm flex items-center gap-2 mx-auto"
               >
                 Load More Properties
               </button>
@@ -348,9 +352,10 @@ export default function SearchResults() {
 
         {/* Right Column: Sticky Map Overlay (Desktop only) */}
         <div className={`hidden lg:block w-[420px] xl:w-[480px] shrink-0 h-[calc(100vh-230px)] sticky top-[210px] z-20`}>
-          <LeafletMap 
+          <GoogleMap 
             properties={rankedResults} 
             selectedProperty={hoveredProperty} 
+            selectedCity={activePreferences?.city}
             height="100%" 
           />
         </div>
@@ -361,7 +366,7 @@ export default function SearchResults() {
       <div className="lg:hidden fixed bottom-6 right-6 z-40">
         <button
           onClick={() => setIsMobileMapOpen(!isMobileMapOpen)}
-          className="flex items-center gap-2 px-5 py-3.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider rounded-full shadow-2xl transition"
+          className="flex items-center gap-2 px-5 py-3.5 bg-gradient-to-r from-[#d4af37] to-[#b8962e] text-white font-black text-xs uppercase tracking-wider rounded-full shadow-2xl transition"
         >
           {isMobileMapOpen ? (
             <>
@@ -379,10 +384,11 @@ export default function SearchResults() {
 
       {/* Full Screen Map Overlay (Mobile view only) */}
       {isMobileMapOpen && (
-        <div className="lg:hidden fixed inset-0 top-16 z-30 bg-white">
-          <LeafletMap 
+        <div className="lg:hidden fixed inset-0 top-16 z-30 bg-[#FFFDF7]">
+          <GoogleMap 
             properties={rankedResults} 
             selectedProperty={hoveredProperty} 
+            selectedCity={activePreferences?.city}
             height="100%" 
           />
         </div>

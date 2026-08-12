@@ -3,8 +3,9 @@ import { useAppStore } from '../store/useAppStore';
 import { useNavigate, Link } from 'react-router-dom';
 import { 
   User, Mail, Shield, Bell, Lock, History, 
-  Sparkles, CheckCircle, Heart, Search, ArrowRight, Save
+  Sparkles, CheckCircle, Heart, Search, ArrowRight, Save, LogOut
 } from 'lucide-react';
+import { authService } from '../services/supabaseAuth';
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -13,6 +14,12 @@ export default function Profile() {
   const [name, setName] = useState(currentUser.name);
   const [email, setEmail] = useState(currentUser.email);
   const [successMessage, setSuccessMessage] = useState("");
+
+  const handleLogout = async () => {
+    await authService.signOut();
+    // Redirect to welcome screen and reload to clear in-memory store states
+    window.location.href = '/welcome';
+  };
 
   // Notification states
   const [notifPreferences, setNotifPreferences] = useState({
@@ -76,7 +83,7 @@ export default function Profile() {
             </div>
           </div>
           
-          <div className="flex gap-4">
+          <div className="flex gap-4 items-center">
             <div className="text-center p-3 bg-slate-50 rounded-2xl border border-slate-100 shrink-0">
               <p className="font-display font-black text-lg text-slate-800">{favorites.length}</p>
               <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Saved Homes</p>
@@ -85,6 +92,13 @@ export default function Profile() {
               <p className="font-display font-black text-lg text-slate-800">3</p>
               <p className="text-[9px] font-bold text-slate-400 uppercase tracking-wide">Chats Opened</p>
             </div>
+            <button
+              onClick={handleLogout}
+              className="p-3 hover:bg-red-50 text-red-600 rounded-2xl border border-red-100 hover:border-red-200 transition font-bold text-xs flex flex-col items-center justify-center gap-1 min-w-[70px] cursor-pointer"
+            >
+              <LogOut className="h-5 w-5" />
+              <span>Log Out</span>
+            </button>
           </div>
         </div>
 
@@ -133,7 +147,7 @@ export default function Profile() {
                 <div className="flex justify-end pt-4 border-t border-slate-100">
                   <button 
                     type="submit" 
-                    className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5"
+                    className="px-5 py-2.5 bg-gradient-to-r from-[#d4af37] to-[#b8962e] hover:opacity-95 text-white rounded-xl text-xs font-bold transition flex items-center gap-1.5"
                   >
                     <Save className="h-4 w-4" /> Save Profile Details
                   </button>

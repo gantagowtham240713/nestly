@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import Welcome from './pages/auth/Welcome';
 
 // Pages
 import LandingPage from './pages/LandingPage';
@@ -18,7 +19,6 @@ import SignIn from './pages/auth/SignIn';
 import SignUp from './pages/auth/SignUp';
 import ForgotPassword from './pages/auth/ForgotPassword';
 import ResetPassword from './pages/auth/ResetPassword';
-import EmailVerification from './pages/auth/EmailVerification';
 import CompleteProfile from './pages/auth/CompleteProfile';
 
 // Dashboards
@@ -38,11 +38,24 @@ function ScrollToTop() {
 import { useAppStore } from './store/useAppStore';
 
 export default function App() {
-  const initApp = useAppStore(state => state.initApp);
+  const { currentUser, initApp } = useAppStore();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    initApp();
+    const init = async () => {
+      await initApp();
+      setLoading(false);
+    };
+    init();
   }, [initApp]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <BrowserRouter>
@@ -50,42 +63,52 @@ export default function App() {
         {/* Scroll helper */}
         <ScrollToTop />
 
-        {/* Global Navbar */}
-        <Navbar />
+        {/* Global Navbar - only visible when logged in */}
+        {currentUser && <Navbar />}
 
         {/* Main Routes Sandbox */}
         <main className="flex-grow w-full">
           <Routes>
-            {/* Core Listing Views */}
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/search" element={<SearchResults />} />
-            <Route path="/property/:id" element={<PropertyDetails />} />
-            <Route path="/compare" element={<ComparePage />} />
-            <Route path="/calculator" element={<AffordabilityCalculatorPage />} />
-            <Route path="/saved" element={<SavedPropertiesPage />} />
-            <Route path="/chats" element={<ChatsPage />} />
-            <Route path="/profile" element={<Profile />} />
-
-            {/* Premium Auth Routing */}
-            <Route path="/signin" element={<SignIn />} />
-            <Route path="/auth" element={<SignIn />} /> {/* fallback */}
-            <Route path="/signup" element={<SignUp />} />
-            <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/verify-email" element={<EmailVerification />} />
-            <Route path="/complete-profile" element={<CompleteProfile />} />
-
-            {/* Dashboard Redirect Portals */}
-            <Route path="/dashboard" element={<DashboardUser />} />
-            <Route path="/owner/dashboard" element={<DashboardOwner />} />
-            <Route path="/dashboard-owner" element={<DashboardOwner />} /> {/* fallback */}
-            <Route path="/admin/dashboard" element={<DashboardAdmin />} />
-            <Route path="/dashboard-admin" element={<DashboardAdmin />} /> {/* fallback */}
+            {!currentUser ? (
+              // Unauthenticated routes
+              <>
+                <Route path="/welcome" element={<Welcome />} />
+                <Route path="/signin" element={<SignIn />} />
+                <Route path="/signup" element={<SignUp />} />
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
+                <Route path="*" element={<Navigate to="/welcome" replace />} />
+              </>
+            ) : (
+              // Authenticated routes
+              <>
+                <Route path="/" element={<LandingPage />} />
+                <Route path="/search" element={<SearchResults />} />
+                <Route path="/property/:id" element={<PropertyDetails />} />
+                <Route path="/compare" element={<ComparePage />} />
+                <Route path="/calculator" element={<AffordabilityCalculatorPage />} />
+                <Route path="/saved" element={<SavedPropertiesPage />} />
+                <Route path="/chats" element={<ChatsPage />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/dashboard" element={<DashboardUser />} />
+                <Route path="/owner/dashboard" element={<DashboardOwner />} />
+                <Route path="/dashboard-owner" element={<DashboardOwner />} />
+                <Route path="/admin/dashboard" element={<DashboardAdmin />} />
+                <Route path="/dashboard-admin" element={<DashboardAdmin />} />
+                <Route path="/complete-profile" element={<CompleteProfile />} />
+                
+                {/* Redirect auth routes to home when logged in */}
+                <Route path="/welcome" element={<Navigate to="/" replace />} />
+                <Route path="/signin" element={<Navigate to="/" replace />} />
+                <Route path="/signup" element={<Navigate to="/" replace />} />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </>
+            )}
           </Routes>
         </main>
 
-        {/* Global Footer */}
-        <Footer />
+        {/* Global Footer - only visible when logged in */}
+        {currentUser && <Footer />}
       </div>
     </BrowserRouter>
   );

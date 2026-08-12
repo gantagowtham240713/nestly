@@ -43,25 +43,41 @@ const buildHtmlIcon = (color, type, isSelected = false) => {
   });
 };
 
+import { getCityCoordinates } from '../data/citiesData';
+
 // Map center update hook
 function ChangeMapView({ center }) {
   const map = useMap();
   useEffect(() => {
     if (center && center[0] && center[1]) {
-      map.setView(center, 14, { animate: true, duration: 1 });
+      map.setView(center, 13, { animate: true, duration: 1 });
     }
-  }, [center, map]);
+  }, [center[0], center[1], map]);
   return null;
 }
 
-export default function LeafletMap({ properties = [], selectedProperty = null, height = "100%" }) {
-  // Determine initial center
-  // Default to Hyderabad or the first property in search results
-  let defaultCenter = [17.4375, 78.4482]; // Ameerpet, Hyd
+export default function LeafletMap({ 
+  properties = [], 
+  selectedProperty = null, 
+  selectedCity = null,
+  userLocation = null,
+  height = "100%" 
+}) {
+  // Determine center based on priority:
+  // 1. Explicitly selected property
+  // 2. Selected city (if specified)
+  // 3. User live geolocation (if available and no city override)
+  // 4. First property in current search results
+  // 5. Default fallback (Hyderabad)
+  let defaultCenter = [17.3850, 78.4867];
   
-  if (selectedProperty && selectedProperty.latitude) {
+  if (selectedProperty && selectedProperty.latitude && selectedProperty.longitude) {
     defaultCenter = [selectedProperty.latitude, selectedProperty.longitude];
-  } else if (properties.length > 0 && properties[0].latitude) {
+  } else if (selectedCity && selectedCity.trim()) {
+    defaultCenter = getCityCoordinates(selectedCity);
+  } else if (userLocation && userLocation.lat && userLocation.lng) {
+    defaultCenter = [userLocation.lat, userLocation.lng];
+  } else if (properties.length > 0 && properties[0].latitude && properties[0].longitude) {
     defaultCenter = [properties[0].latitude, properties[0].longitude];
   }
 

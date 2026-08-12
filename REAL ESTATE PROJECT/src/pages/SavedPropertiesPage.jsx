@@ -159,7 +159,7 @@ export default function SavedPropertiesPage() {
                     className="w-full border border-slate-200 rounded-lg text-xs font-semibold py-2 px-3 focus:outline-none focus:border-primary"
                   />
                   <div className="flex gap-2">
-                    <button type="submit" className="flex-1 py-1.5 bg-slate-900 text-white rounded text-[10px] font-bold">Add</button>
+                    <button type="submit" className="flex-1 py-1.5 bg-gradient-to-r from-[#d4af37] to-[#b8962e] text-white rounded text-[10px] font-bold">Add</button>
                     <button type="button" onClick={() => setShowAddFolder(false)} className="flex-1 py-1.5 bg-slate-100 text-slate-500 rounded text-[10px] font-bold">Cancel</button>
                   </div>
                 </form>
@@ -256,7 +256,7 @@ export default function SavedPropertiesPage() {
                 <p className="text-slate-500 text-xs font-semibold leading-relaxed">
                   Go to search listings and add properties to favorites, then categorize them using folder options.
                 </p>
-                <Link to="/search" className="inline-block px-5 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-bold tracking-wide">
+                <Link to="/search" className="inline-block px-5 py-2.5 bg-gradient-to-r from-[#d4af37] to-[#b8962e] text-white rounded-xl text-xs font-bold tracking-wide">
                   Explore Listings
                 </Link>
               </div>
@@ -339,7 +339,7 @@ export default function SavedPropertiesPage() {
                               <div className="flex gap-2">
                                 <button 
                                   onClick={() => handleSaveNote(p.id)}
-                                  className="flex items-center gap-1 px-3 py-1 bg-slate-900 text-white rounded text-[10px] font-bold"
+                                  className="flex items-center gap-1 px-3 py-1 bg-gradient-to-r from-[#d4af37] to-[#b8962e] text-white rounded text-[10px] font-bold"
                                 >
                                   <Save className="h-3 w-3" /> Save Note
                                 </button>

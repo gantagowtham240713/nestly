@@ -3,7 +3,9 @@
  * Extracts structural parameters from natural language queries.
  */
 
-const KNOWN_CITIES = ["Hyderabad", "Bangalore", "Mumbai", "Delhi", "Pune", "Chennai"];
+import { ALL_CITIES } from '../data/citiesData';
+
+const KNOWN_CITIES = ALL_CITIES;
 
 const KNOWN_LOCALITIES = [
   "Ameerpet", "Gachibowli", "Hitec City", "Kompally", "Whitefield", 

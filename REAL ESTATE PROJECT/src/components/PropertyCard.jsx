@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useAppStore } from '../store/useAppStore';
 import { 
   Heart, ArrowLeftRight, MessageSquare, ChevronLeft, 
-  ChevronRight, Shield, Award, MapPin, Building, BedDouble, Bath, Maximize
+  ChevronRight, Shield, Award, MapPin, Building, BedDouble, Bath, Maximize, Sparkles
 } from 'lucide-react';
 
 export default function PropertyCard({ property }) {
@@ -63,10 +63,10 @@ export default function PropertyCard({ property }) {
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col md:flex-row relative group">
+    <div className="bg-white rounded-2xl border border-[#E8E1D5] overflow-hidden shadow-md hover:shadow-xl hover:border-[#d4af37]/30 transition-all duration-300 flex flex-col md:flex-row relative group">
       
       {/* 1. Image Carousel (Left side on desktop) */}
-      <div className="relative w-full md:w-72 h-52 shrink-0 overflow-hidden bg-slate-900">
+      <div className="relative w-full md:w-72 h-52 shrink-0 overflow-hidden bg-[#F3EDE0]">
         <img 
           src={property.images[currentImgIdx]} 
           alt={property.title} 
@@ -78,13 +78,13 @@ export default function PropertyCard({ property }) {
           <>
             <button 
               onClick={handlePrevImage}
-              className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-black/40 hover:bg-black/60 text-white transition opacity-0 group-hover:opacity-100 z-10"
+              className="absolute left-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white/80 hover:bg-white text-[#2D2A26] transition opacity-0 group-hover:opacity-100 z-10 shadow-sm"
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
             <button 
               onClick={handleNextImage}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-black/40 hover:bg-black/60 text-white transition opacity-0 group-hover:opacity-100 z-10"
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white/80 hover:bg-white text-[#2D2A26] transition opacity-0 group-hover:opacity-100 z-10 shadow-sm"
             >
               <ChevronRight className="h-4 w-4" />
             </button>
@@ -96,16 +96,16 @@ export default function PropertyCard({ property }) {
           {property.images.map((_, idx) => (
             <div 
               key={idx} 
-              className={`h-1.5 w-1.5 rounded-full transition ${idx === currentImgIdx ? 'bg-white scale-125' : 'bg-white/50'}`}
+              className={`h-1.5 w-1.5 rounded-full transition ${idx === currentImgIdx ? 'bg-[#d4af37] scale-125' : 'bg-white/70'}`}
             ></div>
           ))}
         </div>
 
         {/* AI Score Tag Overlay */}
         {property.matchScore !== undefined && (
-          <div className={`absolute top-3 left-3 px-2.5 py-1 rounded-lg text-[11px] font-bold shadow-md flex items-center gap-1 ${property.matchBadgeColor}`}>
+          <div className="absolute top-3 left-3 px-2.5 py-1 rounded-lg text-[11px] font-extrabold shadow-md flex items-center gap-1 bg-white/90 backdrop-blur-md border border-[#d4af37]/20 text-[#d4af37]">
             <Award className="h-3.5 w-3.5" />
-            <span>{property.matchRating} • {property.matchScore}%</span>
+            <span>{property.matchRating} • {property.matchScore}% AI MATCH</span>
           </div>
         )}
 
@@ -115,7 +115,7 @@ export default function PropertyCard({ property }) {
           className={`absolute top-3 right-3 p-2 rounded-xl border transition ${
             isFavorite 
               ? 'bg-rose-500 border-rose-500 text-white shadow-md' 
-              : 'bg-white/80 backdrop-blur-sm border-slate-200 text-slate-600 hover:text-rose-500'
+              : 'bg-white/80 backdrop-blur-sm border-[#E8E1D5] text-[#6F6A61] hover:text-rose-500'
           }`}
           title={isFavorite ? "Remove from wishlist" : "Add to wishlist"}
         >
@@ -131,7 +131,7 @@ export default function PropertyCard({ property }) {
           
           {/* Header row: Price & Badges */}
           <div className="flex justify-between items-start">
-            <h3 className="font-display font-extrabold text-lg sm:text-xl text-slate-900">
+            <h3 className="font-display font-extrabold text-lg sm:text-xl text-[#d4af37]">
               {formatPrice(property.price, property.purpose)}
             </h3>
             
@@ -143,7 +143,7 @@ export default function PropertyCard({ property }) {
                 </span>
               )}
               {property.verifiedOwner && (
-                <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 text-[10px] font-bold border border-blue-200">
+                <span className="inline-flex items-center gap-0.5 px-2 py-0.5 rounded-md bg-[#d4af37]/10 text-[#b8962e] text-[10px] font-bold border border-[#d4af37]/20">
                   <Shield className="h-3 w-3 fill-current" />
                   Owner
                 </span>
@@ -154,32 +154,32 @@ export default function PropertyCard({ property }) {
           {/* Title */}
           <Link 
             to={`/property/${property.id}`} 
-            className="font-display font-bold text-slate-800 hover:text-primary transition block line-clamp-1"
+            className="font-display font-bold text-[#2D2A26] hover:text-[#d4af37] transition block line-clamp-1"
           >
             {property.title}
           </Link>
 
           {/* Locality */}
-          <p className="text-slate-400 text-xs font-semibold flex items-center gap-1">
-            <MapPin className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+          <p className="text-[#6F6A61] text-xs font-semibold flex items-center gap-1">
+            <MapPin className="h-3.5 w-3.5 text-[#9A948A] shrink-0" />
             {property.locality}, {property.city}
           </p>
 
           {/* Quick Specifications */}
-          <div className="flex flex-wrap items-center gap-4 py-2 border-y border-slate-100 text-slate-600 text-xs font-semibold">
+          <div className="flex flex-wrap items-center gap-4 py-2 border-y border-[#E8E1D5] text-[#6F6A61] text-xs font-semibold">
             <div className="flex items-center gap-1">
-              <BedDouble className="h-4 w-4 text-slate-400" />
+              <BedDouble className="h-4 w-4 text-[#d4af37]" />
               <span>{property.bhk} BHK</span>
             </div>
             <div className="flex items-center gap-1">
-              <Bath className="h-4 w-4 text-slate-400" />
+              <Bath className="h-4 w-4 text-[#d4af37]" />
               <span>{property.bathrooms} Baths</span>
             </div>
             <div className="flex items-center gap-1">
-              <Maximize className="h-4 w-4 text-slate-400" />
+              <Maximize className="h-4 w-4 text-[#d4af37]" />
               <span>{property.area} sqft</span>
             </div>
-            <div className="capitalize px-2 py-0.5 rounded bg-slate-100 text-[10px] text-slate-500 font-bold">
+            <div className="capitalize px-2 py-0.5 rounded bg-[#F3EDE0] border border-[#E8E1D5] text-[10px] text-[#6F6A61] font-bold">
               {property.furnishing}
             </div>
           </div>
@@ -187,10 +187,14 @@ export default function PropertyCard({ property }) {
           {/* Recommendation Reasons Checkmarks */}
           {property.matchReasons && property.matchReasons.length > 0 && (
             <div className="pt-2">
-              <p className="text-[10px] font-extrabold uppercase tracking-wider text-orange-500">Recommended because:</p>
-              <div className="grid grid-cols-2 gap-x-3 gap-y-1 mt-1 text-[11px] font-semibold text-slate-500">
+              <p className="text-[10px] font-extrabold uppercase tracking-wider text-[#d4af37] flex items-center gap-1">
+                <Sparkles className="h-3 w-3 animate-pulse" />
+                AI COMMENDED REASONS:
+              </p>
+              <div className="grid grid-cols-2 gap-x-3 gap-y-1 mt-1 text-[11px] font-semibold text-[#6F6A61]">
                 {property.matchReasons.map((reason, index) => (
-                  <span key={index} className="line-clamp-1">
+                  <span key={index} className="line-clamp-1 flex items-center gap-1">
+                    <span className="w-1 h-1 rounded-full bg-[#d4af37] shrink-0" />
                     {reason}
                   </span>
                 ))}
@@ -201,31 +205,31 @@ export default function PropertyCard({ property }) {
         </div>
 
         {/* Action Buttons Row */}
-        <div className="flex items-center justify-between border-t border-slate-100 pt-4 mt-4">
+        <div className="flex items-center justify-between border-t border-[#E8E1D5] pt-4 mt-4">
           
           {/* Compare Checkbox */}
-          <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-500 select-none">
+          <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-[#6F6A61] hover:text-[#d4af37] transition select-none">
             <input 
               type="checkbox" 
               checked={isCompared}
               onChange={handleCompareToggle}
-              className="rounded border-slate-300 text-primary focus:ring-primary h-4 w-4 cursor-pointer"
+              className="rounded border-[#E8E1D5] bg-white text-[#d4af37] focus:ring-[#d4af37] h-4 w-4 cursor-pointer"
             />
-            <ArrowLeftRight className="h-3.5 w-3.5 text-slate-400" />
+            <ArrowLeftRight className="h-3.5 w-3.5 text-[#9A948A]" />
             Compare
           </label>
 
           <div className="flex gap-2">
             <button
               onClick={handleQuickChat}
-              className="p-2.5 rounded-xl border border-slate-200 text-slate-600 hover:text-primary hover:bg-slate-50 transition"
+              className="p-2.5 rounded-xl border border-[#E8E1D5] text-[#6F6A61] hover:text-[#d4af37] hover:bg-[#F8F5ED] transition"
               title="Chat with owner"
             >
               <MessageSquare className="h-4 w-4" />
             </button>
             <Link
               to={`/property/${property.id}`}
-              className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition"
+              className="px-4 py-2 bg-gradient-to-r from-[#d4af37] to-[#b8962e] hover:opacity-95 text-white text-xs font-extrabold rounded-xl transition shadow-md shadow-[#d4af37]/10"
             >
               View Details
             </Link>

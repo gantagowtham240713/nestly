@@ -2,11 +2,25 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #2563eb;
-  --color-primary-hover: #1d4ed8;
-  --color-secondary: #0f172a;
-  --color-accent: #f97316;
+  --color-primary: #FFFDF7; /* Soft cream background */
+  --color-primary-hover: #F8F5ED;
+  --color-secondary: #F3EDE0; /* Soft cream */
+  --color-accent: #d4af37; /* Elegant gold/champagne - kept */
+  --color-accent-hover: #b8962e;
   --color-success: #10b981;
+  --color-charcoal: #FFFFFF; /* White for cards */
+  --color-gold: #d4af37;
+
+  /* Light Theme Colors */
+  --color-light-bg: #FFFDF7;
+  --color-light-bg2: #F8F5ED;
+  --color-light-card: #FFFFFF;
+  --color-light-cream: #F3EDE0;
+  --color-light-border: #E8E1D5;
+  --color-light-text: #2D2A26;
+  --color-light-text2: #6F6A61;
+  --color-light-placeholder: #9A948A;
+  
   --font-sans: 'Plus Jakarta Sans', 'Outfit', system-ui, sans-serif;
   --font-display: 'Outfit', system-ui, sans-serif;
   
@@ -51,8 +65,8 @@
 
 :root {
   font-family: var(--font-sans);
-  background-color: #f8fafc;
-  color: #0f172a;
+  background-color: #FFFDF7; /* Soft cream background */
+  color: #2D2A26; /* Dark readable text */
   scroll-behavior: smooth;
   margin: 0;
   padding: 0;
@@ -60,51 +74,57 @@
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #F8F5ED;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
+  background: #E8E1D5;
+  border-radius: 3px;
+  border: 1px solid rgba(212, 175, 55, 0.15);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #d4af37;
 }
 
-/* Custom Styles */
+/* Luxury Glass Panel - Light Version */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 253, 247, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(232, 225, 213, 0.8);
 }
 
 .glass-panel-dark {
-  background: rgba(15, 23, 42, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(248, 245, 237, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(232, 225, 213, 0.9);
 }
 
 .shimmer-loader {
-  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background: linear-gradient(90deg, #F3EDE0 25%, #E8E1D5 50%, #F3EDE0 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
 }
 
+/* Luxury Gold & Metallic Gradients */
 .gradient-text-ai {
-  background: linear-gradient(135deg, #2563eb 0%, #f97316 50%, #ef4444 100%);
+  background: linear-gradient(135deg, #d4af37 0%, #b8962e 50%, #d4af37 100%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: gradient-shift 5s ease infinite;
+  animation: gradient-shift 6s ease infinite;
 }
 
 .gradient-bg-ai {
-  background: linear-gradient(135deg, #2563eb 0%, #f97316 100%);
+  background: linear-gradient(135deg, #d4af37 0%, #aa841e 100%);
+}
+
+.gradient-bg-dark {
+  background: linear-gradient(180deg, #FFFDF7 0%, #F8F5ED 100%);
 }
 
 .card-shadow-hover {
@@ -112,13 +132,15 @@
 }
 .card-shadow-hover:hover {
   transform: translateY(-4px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.06), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 12px 30px -10px rgba(212, 175, 55, 0.2), 0 4px 12px -5px rgba(0, 0, 0, 0.08);
+  border-color: rgba(212, 175, 55, 0.4) !important;
 }
 
 body {
   margin: 0;
   padding: 0;
-  background-color: #f8fafc;
+  background-color: #FFFDF7; /* Soft cream background */
+  color: #2D2A26;
 }
 
 #root {
@@ -129,13 +151,50 @@ body {
   box-sizing: border-box;
 }
 
-/* Leaflet Map popup style customisation */
+/* Leaflet Map custom light popup */
 .leaflet-popup-content-wrapper {
+  background: #FFFFFF !important;
+  color: #2D2A26 !important;
   border-radius: 12px !important;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1) !important;
+  border: 1px solid rgba(232, 225, 213, 0.8) !important;
   padding: 4px !important;
+}
+
+.leaflet-popup-tip {
+  background: #FFFFFF !important;
+  border: 1px solid rgba(232, 225, 213, 0.8) !important;
 }
 
 .leaflet-popup-content {
   margin: 8px 12px !important;
 }
+
+/* Interactive focus states */
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: #d4af37 !important;
+  box-shadow: 0 0 0 2px rgba(212, 175, 55, 0.2) !important;
+}
+
+/* Custom premium hover underline */
+.hover-gold-underline {
+  position: relative;
+}
+.hover-gold-underline::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  transform: scaleX(0);
+  height: 1.5px;
+  bottom: -2px;
+  left: 0;
+  background-color: #d4af37;
+  transform-origin: bottom right;
+  transition: transform 0.25s ease-out;
+}
+.hover-gold-underline:hover::after {
+  transform: scaleX(1);
+  transform-origin: bottom left;
+}
+

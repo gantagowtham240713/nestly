@@ -7,12 +7,26 @@ import {
 } from 'lucide-react';
 
 export default function ChatsPage() {
-  const { conversations, sendMessage, userRole } = useAppStore();
-  const [activeConvoId, setActiveConvoId] = useState(conversations[0]?.id || null);
+  const { conversations, sendMessage, userRole, currentUser, activeConvoId: storeConvoId, setActiveConvoId: setStoreConvoId } = useAppStore();
+  const [activeConvoId, setActiveConvoId] = useState(storeConvoId || conversations[0]?.id || null);
   const [inputText, setInputText] = useState("");
   const [mockImgFile, setMockImgFile] = useState(null);
 
   const messagesEndRef = useRef(null);
+
+  // Sync activeConvoId when navigating from a property's "Message Owner" button
+  useEffect(() => {
+    if (storeConvoId) {
+      setActiveConvoId(storeConvoId);
+    } else if (!activeConvoId && conversations.length > 0) {
+      setActiveConvoId(conversations[0].id);
+    }
+  }, [storeConvoId, conversations]);
+
+  const handleSelectConvo = (id) => {
+    setActiveConvoId(id);
+    setStoreConvoId?.(id);
+  };
 
   // Retrieve active conversation
   const activeConvo = conversations.find(c => c.id === activeConvoId);
@@ -41,24 +55,24 @@ export default function ChatsPage() {
   };
 
   return (
-    <div className="w-full flex h-[calc(100vh-64px)] bg-slate-50 border-t border-slate-200">
+    <div className="w-full flex h-[calc(100vh-64px)] bg-[#FFFDF7] border-t border-[#E8E1D5]">
       
       {/* 1. Left Sidebar: Conversations List */}
-      <div className={`w-full md:w-80 border-r border-slate-200 bg-white flex flex-col ${activeConvoId ? 'hidden md:flex' : 'flex'}`}>
-        <div className="p-4 border-b border-slate-100 flex items-center justify-between">
-          <h2 className="font-display font-extrabold text-slate-800 text-base flex items-center gap-1.5">
-            <MessageSquare className="h-5 w-5 text-primary" />
+      <div className={`w-full md:w-80 border-r border-[#E8E1D5] bg-white flex flex-col ${activeConvoId ? 'hidden md:flex' : 'flex'}`}>
+        <div className="p-4 border-b border-[#E8E1D5] flex items-center justify-between">
+          <h2 className="font-display font-extrabold text-[#2D2A26] text-base flex items-center gap-1.5">
+            <MessageSquare className="h-5 w-5 text-[#d4af37]" />
             Chats
           </h2>
-          <span className="text-[10px] font-bold bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full uppercase">
+          <span className="text-[10px] font-bold bg-[#F8F5ED] text-[#6F6A61] px-2 py-0.5 rounded-full uppercase">
             Active
           </span>
         </div>
 
         {/* List scroll container */}
-        <div className="flex-1 overflow-y-auto divide-y divide-slate-50">
+        <div className="flex-1 overflow-y-auto divide-y divide-[#F8F5ED]">
           {conversations.length === 0 ? (
-            <div className="p-6 text-center text-slate-400 text-xs font-semibold">
+            <div className="p-6 text-center text-[#9A948A] text-xs font-semibold">
               No conversations started yet.
             </div>
           ) : (
@@ -69,27 +83,27 @@ export default function ChatsPage() {
               return (
                 <div 
                   key={convo.id}
-                  onClick={() => setActiveConvoId(convo.id)}
+                  onClick={() => handleSelectConvo(convo.id)}
                   className={`p-4 cursor-pointer transition flex gap-3 items-center ${
-                    isActive ? 'bg-blue-50/40 border-l-4 border-primary' : 'hover:bg-slate-50'
+                    isActive ? 'bg-[#d4af37]/5 border-l-4 border-[#d4af37]' : 'hover:bg-[#FFFDF7]'
                   }`}
                 >
                   <img 
                     src={convo.ownerAvatar} 
                     alt={convo.ownerName} 
-                    className="h-10 w-10 rounded-full bg-slate-100 shrink-0 border border-slate-200"
+                    className="h-10 w-10 rounded-full bg-[#F3EDE0] shrink-0 border border-[#E8E1D5]"
                   />
                   <div className="flex-1 min-w-0 text-left">
                     <div className="flex justify-between items-baseline mb-0.5">
-                      <h4 className="font-bold text-xs text-slate-800 truncate">{convo.ownerName}</h4>
+                      <h4 className="font-bold text-xs text-[#2D2A26] truncate">{convo.ownerName}</h4>
                       {lastMsg && (
-                        <span className="text-[9px] text-slate-400 font-semibold">
+                        <span className="text-[9px] text-[#9A948A] font-semibold">
                           {new Date(lastMsg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       )}
                     </div>
                     
-                    <p className="text-[11px] text-slate-400 font-semibold truncate leading-tight">
+                    <p className="text-[11px] text-[#6F6A61] font-semibold truncate leading-tight">
                       {convo.propertyName}
                     </p>
                     
@@ -105,7 +119,7 @@ export default function ChatsPage() {
                   </div>
                   
                   {convo.unreadCount > 0 && !isActive && (
-                    <span className="h-4 w-4 bg-primary text-white text-[9px] font-bold rounded-full flex items-center justify-center shrink-0">
+                    <span className="h-4 w-4 bg-[#d4af37] text-white text-[9px] font-bold rounded-full flex items-center justify-center shrink-0">
                       {convo.unreadCount}
                     </span>
                   )}
@@ -162,7 +176,7 @@ export default function ChatsPage() {
               </div>
               <Link 
                 to={`/property/${activeConvo.propertyId}`}
-                className="px-3 py-1.5 bg-slate-900 text-white rounded-lg text-[10px] font-bold flex items-center gap-1 hover:bg-slate-800 transition uppercase tracking-wider shrink-0"
+                className="px-3 py-1.5 bg-[#F8F5ED] border border-[#E8E1D5] text-[#6F6A61] hover:text-[#d4af37] rounded-lg text-[10px] font-bold flex items-center gap-1 hover:bg-[#F3EDE0] transition uppercase tracking-wider shrink-0"
               >
                 View
                 <ArrowRight className="h-3 w-3" />
@@ -172,19 +186,26 @@ export default function ChatsPage() {
             {/* Messages body */}
             <div className="flex-1 overflow-y-auto p-6 space-y-4">
               {activeConvo.messages.map((msg, index) => {
-                const isUser = msg.sender === 'user';
+                const isUser = (msg.sender_id && currentUser?.id) 
+                  ? (msg.sender_id === currentUser.id) 
+                  : (msg.sender === 'user');
                 return (
                   <div key={index} className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
                     <div className={`max-w-[70%] rounded-2xl p-3.5 shadow-sm text-xs sm:text-sm text-left leading-relaxed ${
                       isUser 
-                        ? 'bg-primary text-white rounded-tr-none' 
-                        : 'bg-white text-slate-700 rounded-tl-none border border-slate-200'
+                        ? 'bg-gradient-to-r from-[#d4af37] to-[#b8962e] text-white rounded-tr-none' 
+                        : 'bg-white border border-[#E8E1D5] text-[#2D2A26] rounded-tl-none'
                     }`}>
+                      {!isUser && (
+                        <p className="text-[10px] font-bold text-[#b8962e] mb-1">
+                          {activeConvo.ownerName}
+                        </p>
+                      )}
                       <p className="font-semibold">{msg.text}</p>
                       
                       {/* Image attachments rendering */}
                       {msg.text.includes("screenshot") && (
-                        <div className="mt-2 rounded-lg overflow-hidden border border-slate-100 max-h-40 bg-slate-900">
+                        <div className="mt-2 rounded-lg overflow-hidden border border-[#E8E1D5] max-h-40 bg-[#F8F5ED]">
                           <img src="https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=600&q=80" alt="Attachment" className="object-cover h-full w-full" />
                         </div>
                       )}
@@ -241,7 +262,7 @@ export default function ChatsPage() {
 
               <button
                 type="submit"
-                className="p-3 bg-primary hover:bg-primary-hover text-white rounded-xl shadow-md transition shrink-0"
+                className="p-3 bg-gradient-to-r from-[#d4af37] to-[#b8962e] hover:opacity-95 text-white rounded-xl shadow-md transition shrink-0"
               >
                 <Send className="h-4.5 w-4.5" />
               </button>

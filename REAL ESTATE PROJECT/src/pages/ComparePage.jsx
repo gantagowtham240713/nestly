@@ -103,7 +103,7 @@ export default function ComparePage() {
         </p>
         <button
           onClick={() => navigate('/search')}
-          className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs tracking-wider uppercase rounded-xl transition inline-flex items-center gap-1.5"
+          className="px-5 py-2.5 bg-gradient-to-r from-[#d4af37] to-[#b8962e] hover:opacity-95 text-white font-bold text-xs tracking-wider uppercase rounded-xl transition inline-flex items-center gap-1.5"
         >
           Browse Properties
         </button>
@@ -393,7 +393,7 @@ export default function ComparePage() {
                   <td key={p.id} className="p-6 border-l border-slate-200 text-center">
                     <Link
                       to={`/property/${p.id}`}
-                      className="inline-block px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition w-full"
+                      className="inline-block px-4 py-2 bg-gradient-to-r from-[#d4af37] to-[#b8962e] hover:opacity-95 text-white text-xs font-bold rounded-xl transition w-full"
                     >
                       View Details
                     </Link>

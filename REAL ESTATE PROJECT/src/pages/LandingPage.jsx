@@ -1,21 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAppStore } from '../store/useAppStore';
 import { parseNaturalLanguageQuery } from '../services/aiParser';
+import PropertyCard from '../components/PropertyCard';
+import CitySelector from '../components/CitySelector';
 import { 
   Sparkles, Search, Mic, MicOff, Building2, Home, 
   Milestone, Layers, ShieldCheck, Check, ChevronRight, 
-  Star, ChevronDown, Landmark, Users, Building, Heart
+  Star, ChevronDown, Landmark, Users, Building, Heart,
+  Navigation, MapPin, AlertCircle, LocateFixed, Compass, ArrowRight
 } from 'lucide-react';
 import { mockCities, mockCategories } from '../data/mockProperties';
 
 export default function LandingPage() {
   const navigate = useNavigate();
-  const { setSearchQuery } = useAppStore();
+  const { properties, setSearchQuery } = useAppStore();
   const [query, setQuery] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState(null);
   const [activeFaq, setActiveFaq] = useState(null);
+
+  // Location & City Discovery States
+  const [selectedCity, setSelectedCity] = useState("Hyderabad");
+  const [isDetectingLocation, setIsDetectingLocation] = useState(false);
+  const [locationStatus, setLocationStatus] = useState("");
+  const [locationError, setLocationError] = useState("");
+  const [activeDiscoveryMode, setActiveDiscoveryMode] = useState("city"); // 'nearby' | 'city'
 
   // Initialize Speech Recognition
   useEffect(() => {
@@ -76,6 +86,93 @@ export default function LandingPage() {
     setSearchQuery(suggestionText, parsed);
     navigate(`/search?q=${encodeURIComponent(suggestionText)}`);
   };
+
+  // Location detection handler
+  const handleFindHomesNearMe = () => {
+    setIsDetectingLocation(true);
+    setLocationError("");
+    setLocationStatus("Requesting browser location permission...");
+
+    if (!navigator.geolocation) {
+      setIsDetectingLocation(false);
+      setLocationError("Location access is unavailable. Search by city instead.");
+      setActiveDiscoveryMode("city");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        setLocationStatus("Location detected! Finding available properties near you...");
+
+        // Try reverse geocode via Nominatim API with quick timeout fallback
+        try {
+          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+          const data = await res.json();
+          const cityFound = data?.address?.city || data?.address?.town || data?.address?.county || data?.address?.state_district;
+          if (cityFound) {
+            setSelectedCity(cityFound);
+            setLocationStatus(`Detected location: ${cityFound}. Showing available properties nearby.`);
+          } else {
+            setLocationStatus("Detected your coordinates! Showing available properties.");
+          }
+        } catch {
+          // Fallback coordinate proximity matching
+          if (lat >= 17.0 && lat <= 17.7 && lon >= 78.0 && lon <= 78.8) {
+            setSelectedCity("Hyderabad");
+          } else if (lat >= 16.3 && lat <= 16.7 && lon >= 80.4 && lon <= 80.8) {
+            setSelectedCity("Vijayawada");
+          } else if (lat >= 17.5 && lat <= 17.9 && lon >= 83.0 && lon <= 83.4) {
+            setSelectedCity("Visakhapatnam");
+          }
+          setLocationStatus("Detected coordinates successfully!");
+        }
+
+        setIsDetectingLocation(false);
+        setActiveDiscoveryMode("nearby");
+      },
+      (error) => {
+        console.warn("Geolocation permission error:", error);
+        setIsDetectingLocation(false);
+        setLocationError("Location access is unavailable. Search by city instead.");
+        setActiveDiscoveryMode("city");
+      },
+      { timeout: 10000, maximumAge: 60000 }
+    );
+  };
+
+  // Filter available properties (excluding rented & sold properties)
+  const availableLocationProperties = useMemo(() => {
+    return properties.filter(p => {
+      // Exclude rented / sold
+      if (p.availability === 'rented' || p.availability === 'sold') {
+        return false;
+      }
+      // If city is selected, filter by city (case insensitive partial match)
+      if (selectedCity && selectedCity.trim()) {
+        const c1 = p.city?.toLowerCase() || '';
+        const c2 = selectedCity.trim().toLowerCase();
+        if (!c1.includes(c2) && !c2.includes(c1)) {
+          // If no properties match exact city, we still include properties in the list
+          return true;
+        }
+      }
+      return true;
+    });
+  }, [properties, selectedCity]);
+
+  // Exact city match list for highlight
+  const exactCityProperties = useMemo(() => {
+    return availableLocationProperties.filter(p => {
+      if (!selectedCity) return true;
+      const c1 = p.city?.toLowerCase() || '';
+      const c2 = selectedCity.trim().toLowerCase();
+      return c1.includes(c2) || c2.includes(c1);
+    });
+  }, [availableLocationProperties, selectedCity]);
+
+  const displayedProperties = exactCityProperties.length > 0 ? exactCityProperties : availableLocationProperties;
 
   const stats = [
     { label: 'Properties Listed', count: '1,200+', icon: <Building className="h-5 w-5 text-blue-600" /> },
@@ -141,76 +238,139 @@ export default function LandingPage() {
   ];
 
   return (
-    <div className="flex flex-col items-center w-full min-h-screen bg-slate-50 animate-fade-in">
+    <div className="flex flex-col items-center w-full min-h-screen bg-[#FFFDF7] animate-fade-in text-[#2D2A26]">
       
-      {/* 1. Hero Section */}
-      <section className="relative w-full overflow-hidden bg-gradient-to-b from-blue-50/50 via-white to-slate-50 py-20 px-4">
+      {/* 1. Hero Section & Find Homes */}
+      <section className="relative w-full overflow-hidden bg-gradient-to-b from-[#F8F5ED] via-[#FFFDF7] to-[#FFFDF7] py-24 px-4 border-b border-[#E8E1D5]">
         {/* Glow Spheres */}
-        <div className="absolute top-12 left-1/4 h-72 w-72 rounded-full bg-blue-400/10 blur-3xl"></div>
-        <div className="absolute bottom-6 right-1/4 h-72 w-72 rounded-full bg-orange-400/10 blur-3xl"></div>
+        <div className="absolute top-12 left-1/4 h-72 w-72 rounded-full bg-[#d4af37]/5 blur-3xl"></div>
+        <div className="absolute bottom-6 right-1/4 h-72 w-72 rounded-full bg-[#d4af37]/5 blur-3xl"></div>
 
         <div className="max-w-4xl mx-auto text-center relative z-10 space-y-8">
           
           {/* AI Badge */}
-          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-orange-50 border border-orange-200 text-orange-600 text-xs font-bold shadow-sm">
-            <Sparkles className="h-3.5 w-3.5 animate-spin-slow" />
-            AI-POWERED REAL ESTATE SEARCH
+          <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#d4af37]/10 border border-[#d4af37]/25 text-[#b8962e] text-xs font-bold shadow-md shadow-[#d4af37]/5">
+            <Sparkles className="h-3.5 w-3.5 animate-spin-slow text-[#d4af37]" />
+            SMART PROPERTY DISCOVERY
           </div>
 
           {/* Heading */}
-          <h1 className="font-display font-extrabold text-4xl sm:text-6xl tracking-tight text-slate-900 leading-[1.1] max-w-3xl mx-auto">
-            Find Your Perfect Home Using <span className="text-primary bg-gradient-to-r from-blue-600 to-orange-500 bg-clip-text text-transparent">AI</span>
+          <h1 className="font-display font-extrabold text-4xl sm:text-6xl tracking-tight text-[#2D2A26] leading-[1.1] max-w-3xl mx-auto">
+            Find Your Perfect Home <span className="gradient-text-ai">Near You</span>
           </h1>
 
-          <p className="text-base sm:text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed font-semibold">
-            Describe your dream home in one sentence and let our AI engine find, rank, and explain the best matches instantly.
+          <p className="text-base sm:text-lg text-[#6F6A61] max-w-2xl mx-auto leading-relaxed font-semibold">
+            Search homes by location, explore cities across Andhra Pradesh & Telangana, or let our AI engine rank recommendations.
           </p>
 
-          {/* AI Search Box */}
-          <form 
-            onSubmit={handleSearchSubmit} 
-            className="w-full max-w-3xl mx-auto bg-white p-2 rounded-2xl sm:rounded-3xl shadow-xl shadow-blue-500/5 border border-slate-200 flex flex-col sm:flex-row gap-2"
-          >
-            <div className="flex-1 flex items-center px-4 gap-3">
-              <Search className="h-5 w-5 text-slate-400 shrink-0" />
-              <input 
-                type="text" 
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder='Try: "2BHK under ₹25k near metro with good schools."'
-                className="w-full bg-transparent border-none text-slate-800 placeholder-slate-400 text-sm font-semibold focus:outline-none py-3"
-              />
-              <button
-                type="button"
-                onClick={handleVoiceSearch}
-                className={`p-2 rounded-xl transition shrink-0 ${
-                  isListening 
-                    ? 'bg-red-500 text-white animate-pulse' 
-                    : 'text-slate-400 hover:text-primary hover:bg-slate-50'
-                }`}
-                title="Voice Search"
-              >
-                {isListening ? <MicOff className="h-5 w-5" /> : <Mic className="h-5 w-5" />}
-              </button>
-            </div>
+          {/* Location & City Discovery Controls */}
+          <div className="bg-white p-4 sm:p-5 rounded-3xl shadow-xl border border-[#E8E1D5] max-w-3xl mx-auto space-y-4 text-left">
             
-            <div className="flex gap-2 p-1 sm:p-0">
-              <button
-                type="submit"
-                className="w-full sm:w-auto px-6 py-3.5 rounded-xl sm:rounded-2xl gradient-bg-ai text-white font-bold text-sm tracking-wide shadow-md shadow-blue-500/10 hover:opacity-95 hover:scale-[1.01] transition flex items-center justify-center gap-1.5"
-              >
-                <Sparkles className="h-4 w-4" />
-                AI Search
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate('/search')}
-                className="w-full sm:w-auto px-6 py-3.5 rounded-xl sm:rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm transition"
-              >
-                Explore
-              </button>
+            {/* Top Toggle Bar */}
+            <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pb-3 border-b border-[#E8E1D5]">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleFindHomesNearMe}
+                  disabled={isDetectingLocation}
+                  className={`px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 shadow-sm ${
+                    activeDiscoveryMode === 'nearby' 
+                      ? 'bg-gradient-to-r from-[#d4af37] to-[#b8962e] text-white shadow-md' 
+                      : 'bg-[#F8F5ED] hover:bg-[#F3EDE0] text-[#2D2A26] border border-[#E8E1D5]'
+                  }`}
+                >
+                  <LocateFixed className={`h-4 w-4 ${isDetectingLocation ? 'animate-spin' : ''}`} />
+                  {isDetectingLocation ? 'Detecting Location...' : 'Properties Near My Location'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveDiscoveryMode('city')}
+                  className={`px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-2 ${
+                    activeDiscoveryMode === 'city' 
+                      ? 'bg-gradient-to-r from-[#d4af37] to-[#b8962e] text-white shadow-md' 
+                      : 'bg-[#F8F5ED] hover:bg-[#F3EDE0] text-[#2D2A26] border border-[#E8E1D5]'
+                  }`}
+                >
+                  <Building2 className="h-4 w-4" />
+                  Search By City
+                </button>
+              </div>
+
+              <span className="text-[11px] font-bold text-[#b8962e] bg-[#d4af37]/10 px-2.5 py-1 rounded-full border border-[#d4af37]/20 flex items-center gap-1">
+                <Compass className="h-3.5 w-3.5" />
+                Normal + AI Search
+              </span>
             </div>
-          </form>
+
+            {/* City Selector & Search Bar Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
+              <div className="sm:col-span-5">
+                <label className="text-[10px] font-bold text-[#9A948A] uppercase tracking-wider block mb-1">
+                  Select / Search City (AP & Telangana)
+                </label>
+                <CitySelector 
+                  id="landing-city-selector"
+                  value={selectedCity} 
+                  onChange={(val) => {
+                    setSelectedCity(val);
+                    setLocationError("");
+                    setLocationStatus(`Showing properties in ${val}`);
+                    setActiveDiscoveryMode('city');
+                  }} 
+                />
+              </div>
+
+              {/* AI Query Input */}
+              <div className="sm:col-span-7 space-y-1">
+                <label className="text-[10px] font-bold text-[#9A948A] uppercase tracking-wider block">
+                  Or Describe Need to AI Search
+                </label>
+                <form onSubmit={handleSearchSubmit} className="flex gap-2">
+                  <div className="flex-1 flex items-center bg-[#F8F5ED] border border-[#E8E1D5] rounded-xl px-3 py-1.5 focus-within:border-[#d4af37]">
+                    <Search className="h-4 w-4 text-[#d4af37] shrink-0 mr-2" />
+                    <input 
+                      type="text" 
+                      value={query}
+                      onChange={(e) => setQuery(e.target.value)}
+                      placeholder='e.g. "2BHK under ₹25k near metro"'
+                      className="w-full bg-transparent border-none text-[#2D2A26] placeholder-[#9A948A] text-xs font-semibold focus:outline-none py-1"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleVoiceSearch}
+                      className="text-[#9A948A] hover:text-[#d4af37]"
+                    >
+                      {isListening ? <MicOff className="h-4 w-4 text-red-500 animate-pulse" /> : <Mic className="h-4 w-4" />}
+                    </button>
+                  </div>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-gradient-to-r from-[#d4af37] to-[#b8962e] text-white text-xs font-bold rounded-xl shadow-md flex items-center gap-1 shrink-0 hover:opacity-95"
+                  >
+                    <Sparkles className="h-3.5 w-3.5" />
+                    Search
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            {/* Geolocation Feedback Messages */}
+            {locationStatus && (
+              <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold flex items-center gap-2">
+                <LocateFixed className="h-4 w-4 text-emerald-600 shrink-0" />
+                <span>{locationStatus}</span>
+              </div>
+            )}
+
+            {locationError && (
+              <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-semibold flex items-center gap-2">
+                <AlertCircle className="h-4 w-4 text-amber-600 shrink-0" />
+                <span>{locationError}</span>
+              </div>
+            )}
+
+          </div>
 
           {/* Voice status */}
           {isListening && (
@@ -221,7 +381,7 @@ export default function LandingPage() {
 
           {/* Suggestion Tags */}
           <div className="pt-2 text-left max-w-3xl mx-auto">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mr-2 block sm:inline mb-2 sm:mb-0">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-[#9A948A] mr-2 block sm:inline mb-2 sm:mb-0">
               Example Searches:
             </span>
             <div className="flex flex-wrap gap-2 inline-flex">
@@ -230,7 +390,7 @@ export default function LandingPage() {
                   key={idx}
                   type="button"
                   onClick={() => handleQuickSearch(s)}
-                  className="text-xs bg-slate-100 hover:bg-blue-50 hover:text-primary border border-slate-200 hover:border-blue-200 text-slate-600 px-3 py-1.5 rounded-full transition font-semibold text-left leading-normal"
+                  className="text-xs bg-[#F8F5ED] hover:bg-[#d4af37]/10 hover:text-[#b8962e] border border-[#E8E1D5] hover:border-[#d4af37]/30 text-[#6F6A61] px-3 py-1.5 rounded-full transition font-semibold text-left leading-normal"
                 >
                   "{s}"
                 </button>
@@ -241,196 +401,42 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* 2. Stats Section */}
-      <section className="w-full py-12 bg-white border-y border-slate-100">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {stats.map((stat, idx) => (
-              <div key={idx} className="flex flex-col items-center text-center p-4">
-                <div className="h-10 w-10 rounded-xl bg-slate-50 flex items-center justify-center mb-3 border border-slate-100 shadow-sm">
-                  {stat.icon}
-                </div>
-                <h3 className="font-display font-extrabold text-2xl sm:text-3xl text-slate-900">{stat.count}</h3>
-                <p className="text-xs font-semibold text-slate-500 mt-1">{stat.label}</p>
+      {/* Location-Based Properties Discovery Grid */}
+      <section className="w-full py-16 bg-[#FFFDF7] px-4 sm:px-6 lg:px-8 border-b border-[#E8E1D5]">
+        <div className="max-w-7xl mx-auto space-y-8 text-left">
+          
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#d4af37]/10 text-[#b8962e] text-[11px] font-bold uppercase tracking-wider mb-2">
+                <MapPin className="h-3.5 w-3.5 text-[#d4af37]" />
+                Available Properties in {selectedCity}
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 3. How AI Works */}
-      <section className="w-full py-20 bg-slate-50 px-4">
-        <div className="max-w-6xl mx-auto text-center space-y-12">
-          <div className="space-y-3">
-            <h2 className="font-display font-bold text-3xl text-slate-900">How Nestly Works</h2>
-            <p className="text-slate-500 max-w-xl mx-auto text-sm font-semibold">
-              Skip applying dozens of search filters. We process requirements like a human expert would.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-6">
-            {steps.map((step, idx) => (
-              <div 
-                key={idx} 
-                className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm text-left relative flex flex-col justify-between hover:shadow-md transition duration-300"
-              >
-                <div>
-                  <div className="h-12 w-12 rounded-xl bg-slate-50 flex items-center justify-center border border-slate-100 shadow-sm mb-6">
-                    {step.icon}
-                  </div>
-                  <h4 className="font-display font-bold text-lg text-slate-800 mb-2">{step.title}</h4>
-                  <p className="text-xs leading-relaxed text-slate-500 font-semibold">{step.desc}</p>
-                </div>
-                <div className="absolute top-8 right-8 font-display font-black text-4xl text-slate-100">
-                  0{idx + 1}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 4. Popular Cities */}
-      <section className="w-full py-20 bg-white px-4">
-        <div className="max-w-6xl mx-auto space-y-12">
-          <div className="flex justify-between items-end">
-            <div className="space-y-2">
-              <h2 className="font-display font-bold text-3xl text-slate-900">Search by Popular Cities</h2>
-              <p className="text-slate-500 text-sm font-semibold">Explore verified listings in India's top residential and commercial hubs.</p>
+              <h2 className="font-display font-extrabold text-2xl sm:text-3xl text-[#2D2A26]">
+                Normal Location Discovery ({displayedProperties.length} Properties)
+              </h2>
+              <p className="text-xs sm:text-sm text-[#6F6A61] font-semibold mt-1">
+                Showing available houses, apartments, and villas currently listed in {selectedCity}. Rented/Sold properties are excluded.
+              </p>
             </div>
+
             <button 
-              onClick={() => navigate('/search')}
-              className="text-primary hover:text-primary-hover font-bold text-sm flex items-center gap-1 group transition"
+              onClick={() => navigate(`/search?q=${encodeURIComponent(selectedCity)}`)}
+              className="px-4 py-2.5 bg-[#F8F5ED] hover:bg-[#F3EDE0] border border-[#E8E1D5] text-[#2D2A26] rounded-xl text-xs font-bold transition flex items-center gap-1.5 shrink-0"
             >
-              See all properties 
-              <ChevronRight className="h-4 w-4 group-hover:translate-x-1 transition-transform" />
+              View all in {selectedCity}
+              <ArrowRight className="h-4 w-4 text-[#d4af37]" />
             </button>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
-            {mockCities.map((city, idx) => (
-              <div 
-                key={idx}
-                onClick={() => handleQuickSearch(`Properties in ${city.name}`)}
-                className="group relative h-40 rounded-2xl overflow-hidden cursor-pointer shadow-sm hover:shadow-lg transition duration-300"
-              >
-                <img 
-                  src={city.image} 
-                  alt={city.name}
-                  className="absolute inset-0 h-full w-full object-cover group-hover:scale-110 transition duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-900/10 to-transparent"></div>
-                <div className="absolute bottom-4 left-4 text-white">
-                  <h4 className="font-display font-bold text-sm tracking-wide">{city.name}</h4>
-                  <p className="text-[10px] text-slate-300 font-medium mt-0.5">{city.count} Listings</p>
-                </div>
-              </div>
+          {/* Properties Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {displayedProperties.slice(0, 6).map(property => (
+              <PropertyCard key={property.id} property={property} />
             ))}
           </div>
+
         </div>
       </section>
-
-      {/* 5. Property Categories */}
-      <section className="w-full py-16 bg-slate-50 px-4 border-t border-slate-100">
-        <div className="max-w-6xl mx-auto space-y-12">
-          <div className="text-center space-y-3">
-            <h2 className="font-display font-bold text-3xl text-slate-900">Explore Property Categories</h2>
-            <p className="text-slate-500 max-w-md mx-auto text-sm font-semibold">Filter your perfect match by structural classifications.</p>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {mockCategories.map((cat, idx) => {
-              // Standard rendering mapping to icons
-              let iconNode = <Building2 className="h-6 w-6 text-primary" />;
-              if (cat.name === "Villas") iconNode = <Home className="h-6 w-6 text-emerald-600" />;
-              if (cat.name === "Independent Houses") iconNode = <Milestone className="h-6 w-6 text-orange-600" />;
-              if (cat.name === "Builder Floors") iconNode = <Layers className="h-6 w-6 text-indigo-600" />;
-
-              return (
-                <div 
-                  key={idx}
-                  onClick={() => handleQuickSearch(`Find a ${cat.value} for rent`)}
-                  className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm cursor-pointer hover:shadow-md hover:border-blue-100 transition group flex flex-col items-center text-center"
-                >
-                  <div className="h-12 w-12 rounded-xl bg-slate-50 flex items-center justify-center mb-4 group-hover:bg-blue-50 transition border border-slate-100">
-                    {iconNode}
-                  </div>
-                  <h4 className="font-display font-bold text-sm text-slate-800">{cat.name}</h4>
-                  <p className="text-xs text-slate-400 font-semibold mt-1">{cat.count} listings available</p>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* 6. Testimonials */}
-      <section className="w-full py-20 bg-white px-4">
-        <div className="max-w-5xl mx-auto space-y-12">
-          <div className="text-center space-y-3">
-            <h2 className="font-display font-bold text-3xl text-slate-900">What Our Users Say</h2>
-            <p className="text-slate-500 max-w-sm mx-auto text-sm font-semibold">Hear from home-seekers who bypassed manual filters.</p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {testimonials.map((test, idx) => (
-              <div key={idx} className="bg-slate-50/60 border border-slate-100 p-8 rounded-2xl relative shadow-sm flex flex-col justify-between">
-                <div className="space-y-4">
-                  <div className="flex gap-1">
-                    {[...Array(test.rating)].map((_, i) => (
-                      <Star key={i} className="h-4 w-4 fill-amber-400 text-amber-400" />
-                    ))}
-                  </div>
-                  <p className="text-xs leading-relaxed italic text-slate-600 font-medium">"{test.quote}"</p>
-                </div>
-                <div className="flex items-center gap-3 pt-6 mt-4 border-t border-slate-100">
-                  <img src={test.avatar} alt={test.name} className="h-10 w-10 rounded-full border border-slate-200 bg-white" />
-                  <div>
-                    <h5 className="font-display font-bold text-xs text-slate-800">{test.name}</h5>
-                    <p className="text-[10px] text-slate-400 font-semibold">{test.role}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 7. FAQs */}
-      <section className="w-full py-20 bg-slate-50 px-4 border-t border-slate-100">
-        <div className="max-w-3xl mx-auto space-y-12">
-          <div className="text-center space-y-3">
-            <h2 className="font-display font-bold text-3xl text-slate-900">Frequently Asked Questions</h2>
-            <p className="text-slate-500 text-sm font-semibold">Got questions about Nestly? We've got answers.</p>
-          </div>
-
-          <div className="space-y-4">
-            {faqs.map((faq, idx) => {
-              const isOpen = activeFaq === idx;
-              return (
-                <div 
-                  key={idx}
-                  className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden transition-all duration-300"
-                >
-                  <button
-                    onClick={() => setActiveFaq(isOpen ? null : idx)}
-                    className="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-slate-50/50 transition focus:outline-none"
-                  >
-                    <span className="font-bold text-xs sm:text-sm text-slate-800">{faq.q}</span>
-                    <ChevronDown className={`h-4 w-4 text-slate-500 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
-                  </button>
-                  {isOpen && (
-                    <div className="px-6 pb-5 pt-1 text-xs text-slate-500 leading-relaxed font-semibold border-t border-slate-100 animate-fade-in bg-slate-50/30">
-                      {faq.a}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
     </div>
   );
 }

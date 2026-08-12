@@ -84,9 +84,9 @@ export default function DashboardOwner() {
   ];
 
   const conversionData = [
-    { name: 'Views', Count: stats.views, fill: '#2563eb' },
-    { name: 'Bookmarks', Count: stats.favorites * 10, fill: '#f97316' }, // scaled to show nicely
-    { name: 'Inquiries', Count: stats.inquiries * 20, fill: '#10b981' }
+    { name: 'Views', Count: stats.views, fill: '#d4af37' },
+    { name: 'Bookmarks', Count: stats.favorites * 10, fill: '#aa841e' }, // scaled to show nicely
+    { name: 'Inquiries', Count: stats.inquiries * 20, fill: '#f3e5ab' }
   ];
 
   const onSubmit = (data) => {
@@ -136,19 +136,19 @@ export default function DashboardOwner() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-slate-50 pb-20 animate-fade-in text-left">
+    <div className="w-full min-h-screen bg-[#FFFDF7] pb-20 animate-fade-in text-left text-[#2D2A26]">
       
       {/* Upper banner */}
-      <div className="bg-slate-900 text-white py-10 px-4 sm:px-6 lg:px-8 shadow-md">
+      <div className="bg-[#F8F5ED] border-b border-[#E8E1D5] text-[#2D2A26] py-10 px-4 sm:px-6 lg:px-8 shadow-sm">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div className="space-y-1">
-            <div className="inline-flex items-center gap-1 bg-emerald-500/20 text-emerald-400 text-[10px] font-bold px-2 py-0.5 rounded uppercase border border-emerald-500/20">
+              <div className="inline-flex items-center gap-1 bg-[#d4af37]/10 text-[#b8962e] text-[10px] font-bold px-2 py-0.5 rounded uppercase border border-[#d4af37]/20">
               Listing Provider Mode
             </div>
-            <h1 className="font-display font-extrabold text-2xl sm:text-3xl tracking-tight">
+            <h1 className="font-display font-extrabold text-2xl sm:text-3xl tracking-tight text-[#2D2A26]">
               Welcome back, {currentUser.name}
             </h1>
-            <p className="text-slate-400 text-xs font-semibold">Track listing analytics, manage active listings, and upload real estate documents.</p>
+            <p className="text-[#6F6A61] text-xs font-semibold">Track listing analytics, manage active listings, and upload real estate documents.</p>
           </div>
           
           {/* Quick tab switches */}
@@ -156,7 +156,9 @@ export default function DashboardOwner() {
             <button 
               onClick={() => setActiveTab('overview')}
               className={`px-4 py-2.5 rounded-xl text-xs font-bold transition ${
-                activeTab === 'overview' ? 'bg-primary text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                activeTab === 'overview' 
+                  ? 'bg-gradient-to-r from-[#d4af37] to-[#b8962e] text-white' 
+                  : 'bg-[#F3EDE0] text-[#6F6A61] hover:bg-[#E8E1D5]'
               }`}
             >
               Analytics
@@ -164,7 +166,9 @@ export default function DashboardOwner() {
             <button 
               onClick={() => setActiveTab('listings')}
               className={`px-4 py-2.5 rounded-xl text-xs font-bold transition ${
-                activeTab === 'listings' ? 'bg-primary text-white' : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                activeTab === 'listings' 
+                  ? 'bg-gradient-to-r from-[#d4af37] to-[#b8962e] text-white' 
+                  : 'bg-[#F3EDE0] text-[#6F6A61] hover:bg-[#E8E1D5]'
               }`}
             >
               My Listings ({myProperties.length})
@@ -172,7 +176,9 @@ export default function DashboardOwner() {
             <button 
               onClick={() => setActiveTab('upload')}
               className={`px-4 py-2.5 rounded-xl text-xs font-bold transition flex items-center gap-1 ${
-                activeTab === 'upload' ? 'bg-primary text-white' : 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                activeTab === 'upload' 
+                  ? 'bg-gradient-to-r from-[#d4af37] to-[#b8962e] text-white' 
+                  : 'bg-[#d4af37]/10 hover:bg-[#d4af37]/20 text-[#b8962e] border border-[#d4af37]/25'
               }`}
             >
               <PlusCircle className="h-4 w-4" />
@@ -198,42 +204,42 @@ export default function DashboardOwner() {
             
             {/* KPI Cards row */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-              <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex items-center justify-between">
+              <div className="bg-white p-5 rounded-3xl border border-[#E8E1D5] shadow-sm flex items-center justify-between">
                 <div className="space-y-1">
-                  <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Total Listings</p>
-                  <h3 className="font-display font-black text-2xl text-slate-800">{stats.totalListings}</h3>
+                  <p className="text-[10px] font-extrabold uppercase tracking-wider text-[#9A948A]">Total Listings</p>
+                  <h3 className="font-display font-black text-2xl text-[#2D2A26]">{stats.totalListings}</h3>
                 </div>
-                <div className="h-10 w-10 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center text-slate-400">
+                <div className="h-10 w-10 bg-[#F8F5ED] border border-[#E8E1D5] rounded-xl flex items-center justify-center text-[#d4af37]">
                   <LayoutGrid className="h-5 w-5" />
                 </div>
               </div>
 
-              <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex items-center justify-between">
+              <div className="bg-white p-5 rounded-3xl border border-[#E8E1D5] shadow-sm flex items-center justify-between">
                 <div className="space-y-1">
-                  <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Visitor Views</p>
-                  <h3 className="font-display font-black text-2xl text-slate-800">{stats.views}</h3>
+                  <p className="text-[10px] font-extrabold uppercase tracking-wider text-[#9A948A]">Visitor Views</p>
+                  <h3 className="font-display font-black text-2xl text-[#2D2A26]">{stats.views}</h3>
                 </div>
-                <div className="h-10 w-10 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center text-blue-500">
+                <div className="h-10 w-10 bg-[#F8F5ED] border border-[#E8E1D5] rounded-xl flex items-center justify-center text-[#d4af37]">
                   <Eye className="h-5 w-5" />
                 </div>
               </div>
 
-              <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex items-center justify-between">
+              <div className="bg-white p-5 rounded-3xl border border-[#E8E1D5] shadow-sm flex items-center justify-between">
                 <div className="space-y-1">
-                  <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Messages/Chats</p>
-                  <h3 className="font-display font-black text-2xl text-slate-800">{stats.inquiries}</h3>
+                  <p className="text-[10px] font-extrabold uppercase tracking-wider text-[#9A948A]">Messages/Chats</p>
+                  <h3 className="font-display font-black text-2xl text-[#2D2A26]">{stats.inquiries}</h3>
                 </div>
-                <div className="h-10 w-10 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center text-emerald-500">
+                <div className="h-10 w-10 bg-[#F8F5ED] border border-[#E8E1D5] rounded-xl flex items-center justify-center text-[#d4af37]">
                   <MessageSquare className="h-5 w-5" />
                 </div>
               </div>
 
-              <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm flex items-center justify-between">
+              <div className="bg-white p-5 rounded-3xl border border-[#E8E1D5] shadow-sm flex items-center justify-between">
                 <div className="space-y-1">
-                  <p className="text-[10px] font-extrabold uppercase tracking-wider text-slate-400">Favorites count</p>
-                  <h3 className="font-display font-black text-2xl text-slate-800">{stats.favorites}</h3>
+                  <p className="text-[10px] font-extrabold uppercase tracking-wider text-[#9A948A]">Favorites count</p>
+                  <h3 className="font-display font-black text-2xl text-[#2D2A26]">{stats.favorites}</h3>
                 </div>
-                <div className="h-10 w-10 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-center text-rose-500">
+                <div className="h-10 w-10 bg-[#F8F5ED] border border-[#E8E1D5] rounded-xl flex items-center justify-center text-[#d4af37]">
                   <Heart className="h-5 w-5" />
                 </div>
               </div>
@@ -243,43 +249,43 @@ export default function DashboardOwner() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               
               {/* Main Area Chart */}
-              <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm lg:col-span-2">
-                <h4 className="font-display font-bold text-sm text-slate-800 mb-4">Traffic Performance over Time</h4>
+              <div className="bg-white rounded-3xl border border-[#E8E1D5] p-6 shadow-sm lg:col-span-2">
+                <h4 className="font-display font-bold text-sm text-[#2D2A26] mb-4">Traffic Performance over Time</h4>
                 <div className="h-72">
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={viewsOverTime}>
                       <defs>
                         <linearGradient id="colorViews" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#2563eb" stopOpacity={0.2}/>
-                          <stop offset="95%" stopColor="#2563eb" stopOpacity={0}/>
+                          <stop offset="5%" stopColor="#d4af37" stopOpacity={0.2}/>
+                          <stop offset="95%" stopColor="#d4af37" stopOpacity={0}/>
                         </linearGradient>
                       </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                      <XAxis dataKey="name" stroke="#94a3b8" fontSize={11} />
-                      <YAxis stroke="#94a3b8" fontSize={11} />
-                      <Tooltip />
-                      <Area type="monotone" dataKey="Views" stroke="#2563eb" strokeWidth={2.5} fillOpacity={1} fill="url(#colorViews)" />
-                      <Area type="monotone" dataKey="Inquiries" stroke="#10b981" strokeWidth={2} fillOpacity={0} />
+                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.06)" />
+                      <XAxis dataKey="name" stroke="#9A948A" fontSize={11} />
+                      <YAxis stroke="#9A948A" fontSize={11} />
+                      <Tooltip contentStyle={{ backgroundColor: '#FFFFFF', borderColor: 'rgba(212,175,55,0.2)', borderRadius: '12px', color: '#2D2A26' }} />
+                      <Area type="monotone" dataKey="Views" stroke="#d4af37" strokeWidth={2.5} fillOpacity={1} fill="url(#colorViews)" />
+                      <Area type="monotone" dataKey="Inquiries" stroke="#b8962e" strokeWidth={2} fillOpacity={0} />
                     </AreaChart>
                   </ResponsiveContainer>
                 </div>
               </div>
 
               {/* Conversion bar chart */}
-              <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
-                <h4 className="font-display font-bold text-sm text-slate-800 mb-4">Interest Conversion funnel</h4>
+              <div className="bg-white rounded-3xl border border-[#E8E1D5] p-6 shadow-sm">
+                <h4 className="font-display font-bold text-sm text-[#2D2A26] mb-4">Interest Conversion funnel</h4>
                 <div className="h-72 flex flex-col justify-between">
                   <div className="h-56">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={conversionData}>
-                        <XAxis dataKey="name" stroke="#94a3b8" fontSize={10} />
+                        <XAxis dataKey="name" stroke="#64748b" fontSize={10} />
                         <YAxis hide />
-                        <Tooltip />
+                        <Tooltip contentStyle={{ backgroundColor: '#FFFFFF', borderColor: 'rgba(212,175,55,0.2)', borderRadius: '12px', color: '#2D2A26' }} />
                         <Bar dataKey="Count" radius={[6, 6, 0, 0]} />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
-                  <div className="text-[11px] font-semibold text-slate-500 bg-slate-50 p-2.5 rounded-lg text-center leading-normal border border-slate-100">
+                  <div className="text-[11px] font-semibold text-[#6F6A61] bg-[#FFFDF7] p-2.5 rounded-lg text-center leading-normal border border-[#E8E1D5]">
                     💡 Users are saving your listings at a high conversion rate. Promote properties with verified document audits to boost inquiries!
                   </div>
                 </div>
@@ -294,19 +300,19 @@ export default function DashboardOwner() {
         {activeTab === 'listings' && (
           <div className="space-y-6">
             {myProperties.length === 0 ? (
-              <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center max-w-lg mx-auto space-y-4">
-                <FileText className="h-10 w-10 text-slate-300 mx-auto" />
-                <h3 className="font-display font-bold text-slate-800 text-base">No active listings posted</h3>
-                <p className="text-slate-500 text-xs font-semibold">Click 'Add Property' above to create your first real estate listing.</p>
+              <div className="bg-white rounded-3xl border border-[#E8E1D5] p-12 text-center max-w-lg mx-auto space-y-4 shadow-sm">
+                <FileText className="h-10 w-10 text-[#9A948A] mx-auto" />
+                <h3 className="font-display font-bold text-[#2D2A26] text-base">No active listings posted</h3>
+                <p className="text-[#6F6A61] text-xs font-semibold">Click 'Add Property' above to create your first real estate listing.</p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
                 {myProperties.map(p => (
                   <div 
                     key={p.id}
-                    className="bg-white rounded-3xl border border-slate-200 overflow-hidden shadow-sm flex flex-col sm:flex-row"
+                    className="bg-white rounded-3xl border border-[#E8E1D5] overflow-hidden shadow-sm flex flex-col sm:flex-row"
                   >
-                    <div className="w-full sm:w-44 h-36 shrink-0 bg-slate-900">
+                    <div className="w-full sm:w-44 h-36 shrink-0 bg-[#F3EDE0]">
                       <img src={p.images[0]} alt={p.title} className="w-full h-full object-cover" />
                     </div>
 
@@ -314,47 +320,47 @@ export default function DashboardOwner() {
                       <div>
                         <div className="flex justify-between items-baseline mb-1">
                           <span className={`text-[9px] uppercase tracking-wider font-extrabold px-2 py-0.5 rounded border ${
-                            p.verifiedProperty 
-                              ? 'bg-emerald-50 border-emerald-200 text-emerald-700' 
-                              : 'bg-orange-50 border-orange-200 text-orange-700 animate-pulse'
-                          }`}>
-                            {p.verifiedProperty ? 'Verified ✓' : 'Approval Pending'}
-                          </span>
-                          <span className="text-slate-800 font-extrabold text-sm">
+                             p.verifiedProperty 
+                               ? 'bg-emerald-50 border-emerald-200 text-emerald-700' 
+                               : 'bg-[#d4af37]/10 border-[#d4af37]/20 text-[#b8962e] animate-pulse'
+                           }`}>
+                             {p.verifiedProperty ? 'Verified ✓' : 'Approval Pending'}
+                           </span>
+                           <span className="text-[#d4af37] font-extrabold text-sm">
                             {p.purpose === 'rent' ? `₹${p.price.toLocaleString()}/mo` : `₹${(p.price / 100000).toFixed(0)} Lakhs`}
                           </span>
                         </div>
-                        <h4 className="font-display font-bold text-xs sm:text-sm text-slate-800 line-clamp-1">{p.title}</h4>
-                        <p className="text-[10px] text-slate-400 font-semibold">{p.locality}, {p.city}</p>
+                        <h4 className="font-display font-bold text-xs sm:text-sm text-[#2D2A26] line-clamp-1 hover:text-[#d4af37]">{p.title}</h4>
+                        <p className="text-[10px] text-[#6F6A61] font-semibold">{p.locality}, {p.city}</p>
                       </div>
 
-                      <div className="flex items-center justify-between border-t border-slate-100 pt-3 mt-3">
+                      <div className="flex items-center justify-between border-t border-[#E8E1D5] pt-3 mt-3">
                         <div className="flex gap-1.5 items-center">
                           {p.availability === 'available' ? (
                             <button
                               onClick={() => markAsSoldOrRented(p.id)}
-                              className="text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-600 py-1.5 px-3 rounded-lg transition"
+                              className="text-[10px] font-bold bg-[#F8F5ED] hover:bg-[#F3EDE0] text-[#6F6A61] py-1.5 px-3 rounded-lg transition"
                             >
                               Mark as Sold/Rented
                             </button>
                           ) : (
-                            <span className="text-[10px] bg-slate-100 border border-slate-200 text-slate-400 py-1.5 px-3 rounded-lg font-bold capitalize">
+                            <span className="text-[10px] bg-[#F8F5ED] border border-[#E8E1D5] text-[#6F6A61] py-1.5 px-3 rounded-lg font-bold capitalize">
                               {p.availability}
                             </span>
                           )}
                         </div>
                         
                         <div className="flex gap-1">
-                          <Link
-                            to={`/property/${p.id}`}
-                            className="p-2 border border-slate-200 hover:bg-slate-50 text-slate-500 rounded-lg transition"
+                           <Link
+                             to={`/property/${p.id}`}
+                             className="p-2 border border-[#E8E1D5] hover:bg-[#F8F5ED] text-[#6F6A61] rounded-lg transition"
                             title="Preview property details"
                           >
                             <ArrowUpRight className="h-3.5 w-3.5" />
                           </Link>
-                          <button
-                            onClick={() => deleteListing(p.id)}
-                            className="p-2 border border-slate-200 hover:bg-red-50 text-slate-400 hover:text-red-600 rounded-lg transition"
+                           <button
+                             onClick={() => deleteListing(p.id)}
+                             className="p-2 border border-[#E8E1D5] hover:bg-red-50 text-[#9A948A] hover:text-red-500 rounded-lg transition"
                             title="Delete Listing"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
@@ -371,12 +377,12 @@ export default function DashboardOwner() {
 
         {/* TAB CONTENT: Upload listing form */}
         {activeTab === 'upload' && (
-          <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm max-w-4xl mx-auto">
-            <div className="flex items-center gap-2 pb-4 border-b border-slate-100 mb-6">
-              <PlusCircle className="h-6 w-6 text-primary animate-pulse-slow" />
+          <div className="bg-white rounded-3xl border border-[#E8E1D5] p-6 sm:p-8 shadow-sm max-w-4xl mx-auto text-left">
+            <div className="flex items-center gap-2 pb-4 border-b border-[#E8E1D5] mb-6">
+              <PlusCircle className="h-6 w-6 text-[#d4af37] animate-pulse" />
               <div>
-                <h3 className="font-display font-bold text-slate-800 text-base">Post a New Property Listing</h3>
-                <p className="text-[11px] text-slate-400 font-semibold">Fields are processed by the AI recommendation parser instantly.</p>
+                <h3 className="font-display font-bold text-[#2D2A26] text-base">Post a New Property Listing</h3>
+                <p className="text-[11px] text-[#6F6A61] font-semibold">Fields are processed by the AI recommendation parser instantly.</p>
               </div>
             </div>
 
@@ -385,20 +391,20 @@ export default function DashboardOwner() {
               {/* Row 1: Purpose & Property Type */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Purpose</label>
+                  <label className="text-xs font-bold text-[#6F6A61] uppercase tracking-wide">Purpose</label>
                   <select 
                     {...register('purpose')} 
-                    className="w-full border border-slate-200 rounded-xl py-3 px-4 focus:outline-none focus:border-primary text-xs font-semibold"
+                    className="w-full bg-white border border-[#E8E1D5] text-[#2D2A26] rounded-xl py-3 px-4 focus:outline-none focus:border-[#d4af37] text-xs font-semibold"
                   >
                     <option value="rent">Rent Out</option>
                     <option value="buy">Sell (For Sale)</option>
                   </select>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Property Type</label>
+                  <label className="text-xs font-bold text-[#6F6A61] uppercase tracking-wide">Property Type</label>
                   <select 
                     {...register('propertyType')} 
-                    className="w-full border border-slate-200 rounded-xl py-3 px-4 focus:outline-none focus:border-primary text-xs font-semibold"
+                    className="w-full bg-white border border-[#E8E1D5] text-[#2D2A26] rounded-xl py-3 px-4 focus:outline-none focus:border-[#d4af37] text-xs font-semibold"
                   >
                     <option value="apartment">Apartment / Flat</option>
                     <option value="villa">Villa / Independent Bungalow</option>
@@ -411,22 +417,22 @@ export default function DashboardOwner() {
               {/* Row 2: Title & Price */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="md:col-span-2 space-y-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Listing Title</label>
+                  <label className="text-xs font-bold text-[#6F6A61] uppercase tracking-wide">Listing Title</label>
                   <input 
                     type="text" 
                     {...register('title', { required: 'Title is required' })} 
                     placeholder="e.g. Modern 2BHK Near Gachibowli Metro"
-                    className="w-full border border-slate-200 rounded-xl py-2.5 px-4 focus:outline-none focus:border-primary text-xs font-semibold"
+                    className="w-full bg-white border border-[#E8E1D5] text-[#2D2A26] rounded-xl py-2.5 px-4 focus:outline-none focus:border-[#d4af37] text-xs font-semibold placeholder-[#9A948A]"
                   />
                   {errors.title && <span className="text-[10px] text-red-500 font-bold">{errors.title.message}</span>}
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Price (₹ INR)</label>
+                  <label className="text-xs font-bold text-[#6F6A61] uppercase tracking-wide">Price (₹ INR)</label>
                   <input 
                     type="number" 
                     {...register('price', { required: 'Price is required', min: 1000 })} 
                     placeholder="e.g. 25000 or 7500000"
-                    className="w-full border border-slate-200 rounded-xl py-2.5 px-4 focus:outline-none focus:border-primary text-xs font-semibold"
+                    className="w-full bg-white border border-[#E8E1D5] text-[#2D2A26] rounded-xl py-2.5 px-4 focus:outline-none focus:border-[#d4af37] text-xs font-semibold placeholder-[#9A948A]"
                   />
                   {errors.price && <span className="text-[10px] text-red-500 font-bold">{errors.price.message}</span>}
                 </div>
@@ -434,21 +440,21 @@ export default function DashboardOwner() {
 
               {/* Description */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Listing Description</label>
+                <label className="text-xs font-bold text-[#6F6A61] uppercase tracking-wide">Listing Description</label>
                 <textarea 
                   {...register('description')} 
                   placeholder="Describe your property. List proximity details, ventilation, features..."
-                  className="w-full border border-slate-200 rounded-xl py-3 px-4 focus:outline-none focus:border-primary text-xs font-semibold h-24"
+                  className="w-full bg-white border border-[#E8E1D5] text-[#2D2A26] rounded-xl py-3 px-4 focus:outline-none focus:border-[#d4af37] text-xs font-semibold h-24 placeholder-[#9A948A]"
                 />
               </div>
 
               {/* Location details */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">City</label>
+                  <label className="text-xs font-bold text-[#6F6A61] uppercase tracking-wide">City</label>
                   <select 
                     {...register('city')} 
-                    className="w-full border border-slate-200 rounded-xl py-2.5 px-4 focus:outline-none focus:border-primary text-xs font-semibold"
+                    className="w-full bg-white border border-[#E8E1D5] text-[#2D2A26] rounded-xl py-2.5 px-4 focus:outline-none focus:border-[#d4af37] text-xs font-semibold"
                   >
                     <option value="Hyderabad">Hyderabad</option>
                     <option value="Bangalore">Bangalore</option>
@@ -459,31 +465,31 @@ export default function DashboardOwner() {
                   </select>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Locality</label>
+                  <label className="text-xs font-bold text-[#6F6A61] uppercase tracking-wide">Locality</label>
                   <input 
                     type="text" 
                     {...register('locality', { required: 'Locality is required' })} 
                     placeholder="e.g. Gachibowli"
-                    className="w-full border border-slate-200 rounded-xl py-2.5 px-4 focus:outline-none focus:border-primary text-xs font-semibold"
+                    className="w-full bg-white border border-[#E8E1D5] text-[#2D2A26] rounded-xl py-2.5 px-4 focus:outline-none focus:border-[#d4af37] text-xs font-semibold placeholder-[#9A948A]"
                   />
                   {errors.locality && <span className="text-[10px] text-red-500 font-bold">{errors.locality.message}</span>}
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Latitude (OSM marker)</label>
+                  <label className="text-xs font-bold text-[#6F6A61] uppercase tracking-wide">Latitude (OSM marker)</label>
                   <input 
                     type="text" 
                     {...register('latitude')} 
                     placeholder="e.g. 17.4435"
-                    className="w-full border border-slate-200 rounded-xl py-2.5 px-4 focus:outline-none focus:border-primary text-xs font-semibold"
+                    className="w-full bg-white border border-[#E8E1D5] text-[#2D2A26] rounded-xl py-2.5 px-4 focus:outline-none focus:border-[#d4af37] text-xs font-semibold placeholder-[#9A948A]"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Longitude (OSM marker)</label>
+                  <label className="text-xs font-bold text-[#6F6A61] uppercase tracking-wide">Longitude (OSM marker)</label>
                   <input 
                     type="text" 
                     {...register('longitude')} 
                     placeholder="e.g. 78.3772"
-                    className="w-full border border-slate-200 rounded-xl py-2.5 px-4 focus:outline-none focus:border-primary text-xs font-semibold"
+                    className="w-full bg-white border border-[#E8E1D5] text-[#2D2A26] rounded-xl py-2.5 px-4 focus:outline-none focus:border-[#d4af37] text-xs font-semibold placeholder-[#9A948A]"
                   />
                 </div>
               </div>
@@ -491,10 +497,10 @@ export default function DashboardOwner() {
               {/* BHK & Specs */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">BHK</label>
+                  <label className="text-xs font-bold text-[#6F6A61] uppercase tracking-wide">BHK</label>
                   <select 
                     {...register('bhk')} 
-                    className="w-full border border-slate-200 rounded-xl py-2.5 px-4 focus:outline-none focus:border-primary text-xs font-semibold"
+                    className="w-full bg-white border border-[#E8E1D5] text-[#2D2A26] rounded-xl py-2.5 px-4 focus:outline-none focus:border-[#d4af37] text-xs font-semibold"
                   >
                     <option value="1">1 BHK</option>
                     <option value="2">2 BHK</option>
@@ -503,10 +509,10 @@ export default function DashboardOwner() {
                   </select>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Bathrooms</label>
+                  <label className="text-xs font-bold text-[#6F6A61] uppercase tracking-wide">Bathrooms</label>
                   <select 
                     {...register('bathrooms')} 
-                    className="w-full border border-slate-200 rounded-xl py-2.5 px-4 focus:outline-none focus:border-primary text-xs font-semibold"
+                    className="w-full bg-white border border-[#E8E1D5] text-[#2D2A26] rounded-xl py-2.5 px-4 focus:outline-none focus:border-[#d4af37] text-xs font-semibold"
                   >
                     <option value="1">1 Bath</option>
                     <option value="2">2 Baths</option>
@@ -515,20 +521,20 @@ export default function DashboardOwner() {
                   </select>
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Super Area (sqft)</label>
+                  <label className="text-xs font-bold text-[#6F6A61] uppercase tracking-wide">Super Area (sqft)</label>
                   <input 
                     type="number" 
                     {...register('area', { required: 'Area is required', min: 100 })} 
                     placeholder="e.g. 1200"
-                    className="w-full border border-slate-200 rounded-xl py-2.5 px-4 focus:outline-none focus:border-primary text-xs font-semibold"
+                    className="w-full bg-white border border-[#E8E1D5] text-[#2D2A26] rounded-xl py-2.5 px-4 focus:outline-none focus:border-[#d4af37] text-xs font-semibold placeholder-[#9A948A]"
                   />
                   {errors.area && <span className="text-[10px] text-red-500 font-bold">{errors.area.message}</span>}
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Furnishing</label>
+                  <label className="text-xs font-bold text-[#6F6A61] uppercase tracking-wide">Furnishing</label>
                   <select 
                     {...register('furnishing')} 
-                    className="w-full border border-slate-200 rounded-xl py-2.5 px-4 focus:outline-none focus:border-primary text-xs font-semibold"
+                    className="w-full bg-white border border-[#E8E1D5] text-[#2D2A26] rounded-xl py-2.5 px-4 focus:outline-none focus:border-[#d4af37] text-xs font-semibold"
                   >
                     <option value="unfurnished">Unfurnished</option>
                     <option value="semi-furnished">Semi-Furnished</option>
@@ -539,30 +545,30 @@ export default function DashboardOwner() {
 
               {/* Amenities Boolean checkboxes */}
               <div className="space-y-2">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wide block">Amenities & Rules</label>
+                <label className="text-xs font-bold text-[#6F6A61] uppercase tracking-wide block">Amenities & Rules</label>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                  <label className="flex items-center gap-2 p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 text-xs font-bold select-none">
-                    <input type="checkbox" {...register('parking')} className="rounded border-slate-300 text-primary h-4.5 w-4.5 cursor-pointer" />
+                  <label className="flex items-center gap-2 p-3 border border-[#E8E1D5] rounded-xl cursor-pointer bg-[#F8F5ED] text-xs font-bold text-[#2D2A26] select-none hover:border-[#d4af37]/30 hover:bg-[#F3EDE0]">
+                    <input type="checkbox" {...register('parking')} className="rounded border-[#E8E1D5] text-[#d4af37] h-4.5 w-4.5 cursor-pointer accent-[#d4af37] bg-white" />
                     Covered Parking
                   </label>
-                  <label className="flex items-center gap-2 p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 text-xs font-bold select-none">
-                    <input type="checkbox" {...register('gym')} className="rounded border-slate-300 text-primary h-4.5 w-4.5 cursor-pointer" />
+                  <label className="flex items-center gap-2 p-3 border border-[#E8E1D5] rounded-xl cursor-pointer bg-[#F8F5ED] text-xs font-bold text-[#2D2A26] select-none hover:border-[#d4af37]/30 hover:bg-[#F3EDE0]">
+                    <input type="checkbox" {...register('gym')} className="rounded border-[#E8E1D5] text-[#d4af37] h-4.5 w-4.5 cursor-pointer accent-[#d4af37] bg-white" />
                     Gym Access
                   </label>
-                  <label className="flex items-center gap-2 p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 text-xs font-bold select-none">
-                    <input type="checkbox" {...register('balcony')} className="rounded border-slate-300 text-primary h-4.5 w-4.5 cursor-pointer" />
+                  <label className="flex items-center gap-2 p-3 border border-[#E8E1D5] rounded-xl cursor-pointer bg-[#F8F5ED] text-xs font-bold text-[#2D2A26] select-none hover:border-[#d4af37]/30 hover:bg-[#F3EDE0]">
+                    <input type="checkbox" {...register('balcony')} className="rounded border-[#E8E1D5] text-[#d4af37] h-4.5 w-4.5 cursor-pointer accent-[#d4af37] bg-white" />
                     Balcony
                   </label>
-                  <label className="flex items-center gap-2 p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 text-xs font-bold select-none">
-                    <input type="checkbox" {...register('petFriendly')} className="rounded border-slate-300 text-primary h-4.5 w-4.5 cursor-pointer" />
+                  <label className="flex items-center gap-2 p-3 border border-[#E8E1D5] rounded-xl cursor-pointer bg-[#F8F5ED] text-xs font-bold text-[#2D2A26] select-none hover:border-[#d4af37]/30 hover:bg-[#F3EDE0]">
+                    <input type="checkbox" {...register('petFriendly')} className="rounded border-[#E8E1D5] text-[#d4af37] h-4.5 w-4.5 cursor-pointer accent-[#d4af37] bg-white" />
                     Pet Friendly
                   </label>
-                  <label className="flex items-center gap-2 p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 text-xs font-bold select-none">
-                    <input type="checkbox" {...register('gatedCommunity')} className="rounded border-slate-300 text-primary h-4.5 w-4.5 cursor-pointer" />
+                  <label className="flex items-center gap-2 p-3 border border-[#E8E1D5] rounded-xl cursor-pointer bg-[#F8F5ED] text-xs font-bold text-[#2D2A26] select-none hover:border-[#d4af37]/30 hover:bg-[#F3EDE0]">
+                    <input type="checkbox" {...register('gatedCommunity')} className="rounded border-[#E8E1D5] text-[#d4af37] h-4.5 w-4.5 cursor-pointer accent-[#d4af37] bg-white" />
                     Gated Gated
                   </label>
-                  <label className="flex items-center gap-2 p-3 border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-50 text-xs font-bold select-none">
-                    <input type="checkbox" {...register('bachelorFriendly')} className="rounded border-slate-300 text-primary h-4.5 w-4.5 cursor-pointer" />
+                  <label className="flex items-center gap-2 p-3 border border-[#E8E1D5] rounded-xl cursor-pointer bg-[#F8F5ED] text-xs font-bold text-[#2D2A26] select-none hover:border-[#d4af37]/30 hover:bg-[#F3EDE0]">
+                    <input type="checkbox" {...register('bachelorFriendly')} className="rounded border-[#E8E1D5] text-[#d4af37] h-4.5 w-4.5 cursor-pointer accent-[#d4af37] bg-white" />
                     Bachelors Welcome
                   </label>
                 </div>
@@ -570,48 +576,48 @@ export default function DashboardOwner() {
 
               {/* Image Upload placeholder link */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1">
-                  <Upload className="h-4 w-4" />
+                <label className="text-xs font-bold text-[#6F6A61] uppercase tracking-wide flex items-center gap-1">
+                  <Upload className="h-4 w-4 text-[#d4af37]" />
                   Property Image URL
                 </label>
                 <input 
                   type="text" 
                   {...register('imageUrl')}
                   placeholder="URL pointing to high quality picture..." 
-                  className="w-full border border-slate-200 rounded-xl py-2.5 px-4 focus:outline-none focus:border-primary text-xs font-semibold"
+                  className="w-full bg-white border border-[#E8E1D5] text-[#2D2A26] rounded-xl py-2.5 px-4 focus:outline-none focus:border-[#d4af37] text-xs font-semibold placeholder-[#9A948A]"
                 />
               </div>
 
               {/* Row 4: Connectivity distances */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-slate-100">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-[#E8E1D5]">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Distance to Metro (meters)</label>
-                  <input type="number" {...register('distanceToMetro')} className="w-full border border-slate-200 rounded-xl py-2.5 px-4 text-xs font-semibold focus:outline-none" />
+                  <label className="text-xs font-bold text-[#6F6A61] uppercase tracking-wide">Distance to Metro (meters)</label>
+                  <input type="number" {...register('distanceToMetro')} className="w-full bg-white border border-[#E8E1D5] text-[#2D2A26] rounded-xl py-2.5 px-4 text-xs font-semibold focus:outline-none focus:border-[#d4af37]" />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Distance to School (meters)</label>
-                  <input type="number" {...register('distanceToSchool')} className="w-full border border-slate-200 rounded-xl py-2.5 px-4 text-xs font-semibold focus:outline-none" />
+                  <label className="text-xs font-bold text-[#6F6A61] uppercase tracking-wide">Distance to School (meters)</label>
+                  <input type="number" {...register('distanceToSchool')} className="w-full bg-white border border-[#E8E1D5] text-[#2D2A26] rounded-xl py-2.5 px-4 text-xs font-semibold focus:outline-none focus:border-[#d4af37]" />
                 </div>
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-500 uppercase tracking-wide">Distance to Hospital (meters)</label>
-                  <input type="number" {...register('distanceToHospital')} className="w-full border border-slate-200 rounded-xl py-2.5 px-4 text-xs font-semibold focus:outline-none" />
+                  <label className="text-xs font-bold text-[#6F6A61] uppercase tracking-wide">Distance to Hospital (meters)</label>
+                  <input type="number" {...register('distanceToHospital')} className="w-full bg-white border border-[#E8E1D5] text-[#2D2A26] rounded-xl py-2.5 px-4 text-xs font-semibold focus:outline-none focus:border-[#d4af37]" />
                 </div>
               </div>
 
               {/* Submit Buttons */}
-              <div className="flex gap-4 justify-end pt-6 border-t border-slate-100">
+              <div className="flex gap-4 justify-end pt-6 border-t border-[#E8E1D5]">
                 <button 
                   type="button" 
                   onClick={() => setActiveTab('listings')} 
-                  className="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs tracking-wider uppercase rounded-xl transition"
+                  className="px-6 py-3 bg-[#F8F5ED] hover:bg-[#F3EDE0] text-[#6F6A61] border border-[#E8E1D5] font-bold text-xs tracking-wider uppercase rounded-xl transition"
                 >
                   Cancel
                 </button>
                 <button 
                   type="submit" 
-                  className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs tracking-wider uppercase rounded-xl transition shadow-md flex items-center gap-1.5"
+                  className="px-6 py-3 bg-gradient-to-r from-[#d4af37] to-[#b8962e] text-white font-black text-xs tracking-wider uppercase rounded-xl transition shadow-md flex items-center gap-1.5"
                 >
-                  <Sparkles className="h-4 w-4 animate-spin-slow" />
+                  <Sparkles className="h-4 w-4 text-white animate-pulse" />
                   Publish Listing
                 </button>
               </div>
